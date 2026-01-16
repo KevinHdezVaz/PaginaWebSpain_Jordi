@@ -1,0 +1,50 @@
+@import "tailwindcss";
+
+/* Tus variables personalizadas de colores tierra (las movemos aquí) */
+@layer base {
+  :root {
+    --earth-brown: 139 111 71;
+    /* #8B6F47 */
+    --earth-beige: 217 194 167;
+    /* #D9C2A7 */
+    --earth-green: 107 142 35;
+    /* #6B8E23 */
+    --earth-dark: 74 63 53;
+    /* #4A3F35 */
+    --earth-light: 245 240 230;
+    /* #F5F0E6 */
+    --text-dark: 51 51 51;
+    /* #333333 */
+    --text-light: 255 255 255;
+    /* #ffffff */
+  }
+}
+
+/* Estilos base que querías */
+@layer base {
+  body {
+    @apply bg-[rgb(var(--earth-light))] text-[rgb(var(--text-dark))] font-sans min-h-screen;
+    margin: 0;
+  }
+
+  a {
+    @apply text-[rgb(var(--earth-brown))] font-medium transition-colors duration-200;
+  }
+
+  a:hover {
+    @apply text-[rgb(var(--earth-green))];
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply text-[rgb(var(--earth-dark))] font-bold;
+  }
+
+  button {
+    @apply bg-[rgb(var(--earth-brown))] text-white px-6 py-3 rounded-lg font-medium transition-all hover:bg-[rgb(var(--earth-green))] hover:shadow-md;
+  }
+}
