@@ -10,6 +10,7 @@ import Blog from "./pages/Blog";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import Configurator from "./pages/Configurator";
+import BlogDetail from "./pages/BlogDetail";
 
 function App() {
     return (
@@ -21,10 +22,12 @@ function App() {
                         <Route path="/" element={<Home />} />
                         <Route path="/routes" element={<RoutesPage />} />
                         <Route path="/packages" element={<Packages />} />
+
                         <Route path="/blog" element={<Blog />} />
                         <Route path="/about" element={<About />} />
                         <Route path="/contact" element={<Contact />} />
                         <Route path="/configurator" element={<Configurator />} />
+                        <Route path="/blog/:id" element={<BlogDetail />} />
                     </Routes>
                 </main>
                 <Footer />

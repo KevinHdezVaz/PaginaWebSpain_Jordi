@@ -1,63 +1,70 @@
+import { useEffect, useState } from "react";
 import PackageCard from "../components/sections/PackageCard";
 
-// Imágenes de ejemplo (hoteles, ciclistas, gastronomía). Cambia por las reales cuando las tengas
-const mockPackages = [
-    {
-        id: 1,
-        name: "Fin de semana gravel",
-        days: 3,
-        nights: 2,
-        price: "Desde 750€",
-        image: "https://images.unsplash.com/photo-1520250497591-112f7266f6da?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80",
-        routesIncluded: 2,
-        description: "Ideal para una escapada corta. Dos rutas espectaculares, hoteles con encanto y gastronomía local de primer nivel.",
-        highlights: [
-            "2 rutas gravel guiadas",
-            "2 noches en hotel boutique",
-            "Desayunos y 2 cenas incluidos",
-            "Asistencia mecánica básica",
-            "Experiencia cultural local",
-        ],
-    },
-    {
-        id: 2,
-        name: "Experiencia Empordà",
-        days: 5,
-        nights: 4,
-        price: "Desde 1.350€",
-        image: "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80",
-        routesIncluded: 4,
-        description: "La opción más popular. Cinco días para conocer a fondo el Baix y Alt Empordà combinando deporte y placer.",
-        highlights: [
-            "4 rutas gravel exclusivas",
-            "4 noches en hoteles seleccionados",
-            "Todas las comidas incluidas",
-            "Visita guiada cultural",
-            "Asistencia completa en ruta",
-            "Seguro de viaje básico",
-        ],
-    },
-    {
-        id: 3,
-        name: "Inmersión total",
-        days: 7,
-        nights: 6,
-        price: "Desde 1.950€",
-        image: "https://images.unsplash.com/photo-1501785888041-af3ef285b470?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80",
-        routesIncluded: 6,
-        description: "Una semana completa para vivir el Empordà como un local. Máxima variedad de rutas y experiencias premium.",
-        highlights: [
-            "6 rutas gravel variadas",
-            "6 noches en alojamientos premium",
-            "Pensión completa gourmet",
-            "Experiencias exclusivas (bodega, cocina local)",
-            "Traslados y logística completa",
-            "Grupo reducido (máx 10 personas)",
-        ],
-    },
-];
+type Package = {
+    id: number;
+    name: string;
+    days: number;
+    nights: number;
+    price: string;
+    image: string | null;
+    description: string | null;
+    highlights: string[];
+};
 
 export default function Packages() {
+    const [packages, setPackages] = useState<Package[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        const fetchPackages = async () => {
+            try {
+                const response = await fetch("https://spainweb.picklebracket.pro/api/packages");
+
+                if (!response.ok) {
+                    throw new Error("Error al cargar los paquetes");
+                }
+
+                const data = await response.json();
+                setPackages(data);
+                setLoading(false);
+            } catch (err) {
+                console.error(err);
+                setError("No se pudieron cargar los paquetes. Intenta recargar la página.");
+                setLoading(false);
+            }
+        };
+
+        fetchPackages();
+    }, []);
+
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-earth-light flex items-center justify-center">
+                <div className="text-center">
+                    <div className="spinner-border text-earth-brown" role="status" style={{ width: '3rem', height: '3rem' }}>
+                        <span className="visually-hidden">Cargando...</span>
+                    </div>
+                    <p className="mt-4 text-xl text-earth-dark">Cargando paquetes...</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="min-h-screen bg-earth-light flex items-center justify-center">
+                <div className="text-center">
+                    <p className="text-2xl text-red-600 mb-4">{error}</p>
+                    <button onClick={() => window.location.reload()} className="btn bg-earth-brown text-white px-6 py-3 rounded-lg">
+                        Recargar página
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="min-h-screen bg-earth-light py-16">
             <div className="max-w-7xl mx-auto px-6">
@@ -71,11 +78,29 @@ export default function Packages() {
                     </p>
                 </div>
 
-                <div className="grid md:grid-cols-1 lg:grid-cols-3 gap-12">
-                    {mockPackages.map((pkg) => (
-                        <PackageCard key={pkg.id} pkg={pkg} />
-                    ))}
-                </div>
+                {packages.length === 0 ? (
+                    <div className="text-center py-20">
+                        <p className="text-2xl text-gray-600">No hay paquetes disponibles en este momento.</p>
+                    </div>
+                ) : (
+                    <div className="grid md:grid-cols-1 lg:grid-cols-3 gap-12">
+                        {packages.map((pkg) => (
+                            <PackageCard
+                                key={pkg.id}
+                                pkg={{
+                                    id: pkg.id,
+                                    name: pkg.name,
+                                    days: pkg.days,
+                                    nights: pkg.nights,
+                                    price: pkg.price,
+                                    image: pkg.image || "/placeholder.jpg",
+                                    description: pkg.description || "",
+                                    highlights: pkg.highlights || [],
+                                }}
+                            />
+                        ))}
+                    </div>
+                )}
 
                 <div className="text-center mt-20 bg-earth-beige/50 py-12 rounded-2xl">
                     <p className="text-2xl font-semibold text-earth-dark mb-4">

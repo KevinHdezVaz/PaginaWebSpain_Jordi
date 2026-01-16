@@ -1,41 +1,74 @@
+import { useEffect, useState } from "react";
 import RouteCard from "../components/sections/RouteCard";
 
-// Imágenes de ejemplo (Unsplash - cicloturismo/gravel). Cámbialas luego por las reales
-const mockRoutes = [
-    {
-        id: 1,
-        name: "Ruta de los Pueblos Medievales",
-        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80",
-        distance: "68 km",
-        elevation: "+1.450 m",
-        duration: "6-8 horas",
-        difficulty: "Media" as const,
-        description: "Recorre encantadores pueblos medievales del Baix Empordà, castillos, campos de olivos y viñedos con vistas al mar.",
-    },
-    {
-        id: 2,
-        name: "Costa Brava Gravel",
-        image: "https://images.unsplash.com/photo-1551632811-561732d1e306?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80",
-        distance: "55 km",
-        elevation: "+900 m",
-        duration: "4-6 horas",
-        difficulty: "Fácil" as const,
-        description: "Combina caminos interiores con tramos cercanos a calas escondidas y acantilados de la Costa Brava.",
-    },
-    {
-        id: 3,
-        name: "Volcanes del Garrotxa",
-        image: "https://images.unsplash.com/photo-1540979384512-1161c1cf9c8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80",
-        distance: "82 km",
-        elevation: "+1.800 m",
-        duration: "7-9 horas",
-        difficulty: "Difícil" as const,
-        description: "Atravesarás la zona volcánica de la Garrotxa con paisajes únicos, bosques frondosos y cráteres extinguidos.",
-    },
-    // Puedes añadir hasta 10 aquí fácilmente
-];
+type Route = {
+    id: number;
+    name: string;
+    image: string | null;
+    distance: string | null;
+    elevation: string | null;
+    duration: string | null;
+    difficulty: "Fácil" | "Media" | "Difícil";
+    description: string | null;
+};
 
 export default function RoutesPage() {
+    const [routes, setRoutes] = useState<Route[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        const fetchRoutes = async () => {
+            try {
+                const response = await fetch("https://spainweb.picklebracket.pro/api/routes"); // ← Cambia por tu dominio real o localhost
+
+                if (!response.ok) {
+                    throw new Error("Error al cargar las rutas");
+                }
+
+                const data = await response.json();
+
+                // Laravel devuelve {data: [...]}, pero si usas Route::all() devuelve array directo
+                const routesData = Array.isArray(data) ? data : data.data;
+
+                setRoutes(routesData);
+                setLoading(false);
+            } catch (err) {
+                console.error(err);
+                setError("No se pudieron cargar las rutas. Intenta recargar la página.");
+                setLoading(false);
+            }
+        };
+
+        fetchRoutes();
+    }, []);
+
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-earth-light flex items-center justify-center">
+                <div className="text-center">
+                    <div className="spinner-border text-earth-brown" role="status" style={{ width: '3rem', height: '3rem' }}>
+                        <span className="visually-hidden">Cargando...</span>
+                    </div>
+                    <p className="mt-4 text-xl text-earth-dark">Cargando rutas...</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="min-h-screen bg-earth-light flex items-center justify-center">
+                <div className="text-center">
+                    <p className="text-2xl text-red-600 mb-4">{error}</p>
+                    <button onClick={() => window.location.reload()} className="btn bg-earth-brown text-white px-6 py-3 rounded-lg">
+                        Recargar página
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="min-h-screen bg-earth-light py-16">
             <div className="max-w-7xl mx-auto px-6">
@@ -48,11 +81,29 @@ export default function RoutesPage() {
                     </p>
                 </div>
 
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-12">
-                    {mockRoutes.map((route) => (
-                        <RouteCard key={route.id} route={route} />
-                    ))}
-                </div>
+                {routes.length === 0 ? (
+                    <div className="text-center py-20">
+                        <p className="text-2xl text-gray-600">No hay rutas disponibles en este momento.</p>
+                    </div>
+                ) : (
+                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-12">
+                        {routes.map((route) => (
+                            <RouteCard
+                                key={route.id}
+                                route={{
+                                    id: route.id,
+                                    name: route.name,
+                                    image: route.image || "/placeholder.jpg", // fallback si no hay imagen
+                                    distance: route.distance || "N/A",
+                                    elevation: route.elevation || "N/A",
+                                    duration: route.duration || "N/A",
+                                    difficulty: route.difficulty,
+                                    description: route.description || "Sin descripción disponible.",
+                                }}
+                            />
+                        ))}
+                    </div>
+                )}
 
                 <div className="text-center mt-16">
                     <p className="text-lg text-gray-600">

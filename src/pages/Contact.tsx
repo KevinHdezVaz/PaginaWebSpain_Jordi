@@ -1,75 +1,209 @@
-import ContactForm from "../components/forms/ContactForm";
+import { useState } from "react";
 
 export default function Contact() {
+    const [formData, setFormData] = useState({
+        name: "",
+        email: "",
+        phone: "",
+        people: 4,
+        package: "",
+        dates: "",
+        message: "",
+    });
+
+    const [loading, setLoading] = useState(false);
+    const [success, setSuccess] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+        setFormData({
+            ...formData,
+            [e.target.name]: e.target.value,
+        });
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setLoading(true);
+        setError(null);
+        setSuccess(false);
+
+        try {
+            const response = await fetch("https://spainweb.picklebracket.pro/api/reservations", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(formData),
+            });
+
+            if (!response.ok) {
+                const errData = await response.json();
+                throw new Error(errData.message || "Error al enviar la reserva");
+            }
+
+            setSuccess(true);
+            setFormData({
+                name: "",
+                email: "",
+                phone: "",
+                people: 4,
+                package: "",
+                dates: "",
+                message: "",
+            });
+        } catch (err: any) {
+            setError(err.message || "Error al enviar. Intenta de nuevo.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <div className="min-h-screen bg-earth-light py-16">
-            <div className="max-w-7xl mx-auto px-6">
+            <div className="max-w-4xl mx-auto px-6">
                 <div className="text-center mb-16">
                     <h1 className="text-5xl md:text-6xl font-bold text-earth-dark mb-6">
-                        Contacto & Reservas
+                        Reserva tu Experiencia Gravel
                     </h1>
-                    <p className="text-xl text-gray-700 max-w-4xl mx-auto">
-                        ¿Listo para tu aventura gravel en el Empordà? Escribe tu consulta y Jordi te responderá personalmente en menos de 24h.
+                    <p className="text-xl text-gray-700 max-w-3xl mx-auto">
+                        Cuéntanos qué tienes en mente y Jordi te responderá personalmente en menos de 24h con todos los detalles.
                     </p>
                 </div>
 
-                <div className="grid lg:grid-cols-3 gap-12">
-                    {/* Formulario */}
-                    <div className="lg:col-span-2 bg-white rounded-3xl shadow-2xl p-10 md:p-12">
-                        <ContactForm />
-                    </div>
+                <div className="bg-white rounded-3xl shadow-2xl p-10 md:p-16">
+                    {success && (
+                        <div className="mb-8 p-6 bg-green-100 border border-green-300 rounded-2xl text-center">
+                            <p className="text-2xl font-bold text-green-800 mb-2">¡Reserva enviada con éxito!</p>
+                            <p className="text-lg text-green-700">Jordi te contactará en breve para confirmar todos los detalles.</p>
+                        </div>
+                    )}
 
-                    {/* Datos de contacto alternativos */}
-                    <div className="space-y-8">
-                        <div className="bg-earth-beige/30 rounded-2xl p-8">
-                            <h3 className="text-2xl font-bold text-earth-dark mb-6">
-                                También puedes contactar por:
-                            </h3>
-                            <ul className="space-y-6">
-                                <li className="flex items-center">
-                                    <svg className="w-8 h-8 text-earth-brown mr-4" fill="currentColor" viewBox="0 0 20 20">
-                                        <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
-                                    </svg>
-                                    <div>
-                                        <p className="font-semibold">Teléfono / WhatsApp</p>
-                                        <a href="tel:+34600123456" className="text-earth-brown hover:text-earth-green text-lg">
-                                            +34 600 123 456
-                                        </a>
-                                    </div>
-                                </li>
-                                <li className="flex items-center">
-                                    <svg className="w-8 h-8 text-earth-brown mr-4" fill="currentColor" viewBox="0 0 20 20">
-                                        <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
-                                        <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
-                                    </svg>
-                                    <div>
-                                        <p className="font-semibold">Email</p>
-                                        <a href="mailto:info@gravelemporda360.com" className="text-earth-brown hover:text-earth-green text-lg">
-                                            info@gravelemporda360.com
-                                        </a>
-                                    </div>
-                                </li>
-                                <li className="flex items-center">
-                                    <svg className="w-8 h-8 text-earth-brown mr-4" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
-                                    </svg>
-                                    <div>
-                                        <p className="font-semibold">Ubicación</p>
-                                        <p className="text-gray-700">Baix Empordà<br />Girona, Catalunya</p>
-                                    </div>
-                                </li>
-                            </ul>
+                    {error && (
+                        <div className="mb-8 p-6 bg-red-100 border border-red-300 rounded-2xl text-center">
+                            <p className="text-lg text-red-700">{error}</p>
+                        </div>
+                    )}
+
+                    <form onSubmit={handleSubmit}>
+                        <div className="grid md:grid-cols-2 gap-8 mb-8">
+                            <div>
+                                <label className="block text-earth-dark font-bold mb-3 text-lg">Nombre completo *</label>
+                                <input
+                                    type="text"
+                                    name="name"
+                                    value={formData.name}
+                                    onChange={handleChange}
+                                    required
+                                    className="w-full px-6 py-4 rounded-xl border-2 border-earth-beige focus:border-earth-brown focus:outline-none text-lg"
+                                    placeholder="Tu nombre"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-earth-dark font-bold mb-3 text-lg">Email *</label>
+                                <input
+                                    type="email"
+                                    name="email"
+                                    value={formData.email}
+                                    onChange={handleChange}
+                                    required
+                                    className="w-full px-6 py-4 rounded-xl border-2 border-earth-beige focus:border-earth-brown focus:outline-none text-lg"
+                                    placeholder="tu@email.com"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-earth-dark font-bold mb-3 text-lg">Teléfono *</label>
+                                <input
+                                    type="tel"
+                                    name="phone"
+                                    value={formData.phone}
+                                    onChange={handleChange}
+                                    required
+                                    className="w-full px-6 py-4 rounded-xl border-2 border-earth-beige focus:border-earth-brown focus:outline-none text-lg"
+                                    placeholder="+34 600 000 000"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-earth-dark font-bold mb-3 text-lg">Número de personas *</label>
+                                <select
+                                    name="people"
+                                    value={formData.people}
+                                    onChange={handleChange}
+                                    required
+                                    className="w-full px-6 py-4 rounded-xl border-2 border-earth-beige focus:border-earth-brown focus:outline-none text-lg"
+                                >
+                                    {[4, 5, 6, 7, 8, 9, 10].map((num) => (
+                                        <option key={num} value={num}>
+                                            {num} personas
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div>
+                                <label className="block text-earth-dark font-bold mb-3 text-lg">Paquete de interés</label>
+                                <select
+                                    name="package"
+                                    value={formData.package}
+                                    onChange={handleChange}
+                                    className="w-full px-6 py-4 rounded-xl border-2 border-earth-beige focus:border-earth-brown focus:outline-none text-lg"
+                                >
+                                    <option value="">Cualquiera / Personalizado</option>
+                                    <option value="Fin de semana gravel">Fin de semana gravel (3 días)</option>
+                                    <option value="Experiencia Empordà">Experiencia Empordà (5 días)</option>
+                                    <option value="Inmersión total">Inmersión total (7 días)</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label className="block text-earth-dark font-bold mb-3 text-lg">Fechas aproximadas</label>
+                                <input
+                                    type="text"
+                                    name="dates"
+                                    value={formData.dates}
+                                    onChange={handleChange}
+                                    className="w-full px-6 py-4 rounded-xl border-2 border-earth-beige focus:border-earth-brown focus:outline-none text-lg"
+                                    placeholder="Ej: Junio 2026, o fechas flexibles"
+                                />
+                            </div>
                         </div>
 
-                        <div className="bg-earth-brown text-white rounded-2xl p-8 text-center">
-                            <p className="text-lg font-semibold mb-4">
-                                Mínimo 4 personas · Máximo 10
-                            </p>
-                            <p>Grupos privados y fechas flexibles todo el año</p>
+                        <div className="mb-10">
+                            <label className="block text-earth-dark font-bold mb-3 text-lg">Mensaje adicional</label>
+                            <textarea
+                                name="message"
+                                value={formData.message}
+                                onChange={handleChange}
+                                rows={6}
+                                className="w-full px-6 py-4 rounded-xl border-2 border-earth-beige focus:border-earth-brown focus:outline-none text-lg resize-none"
+                                placeholder="Cuéntanos más: preferencias de alojamiento, nivel de ciclismo, intereses gastronómicos, si venís en familia..."
+                            ></textarea>
                         </div>
-                    </div>
+
+                        <div className="text-center">
+                            <button
+                                type="submit"
+                                disabled={loading}
+                                className="bg-earth-brown hover:bg-earth-green text-white font-bold py-5 px-16 rounded-2xl text-2xl transition-all shadow-xl disabled:opacity-70 disabled:cursor-not-allowed"
+                            >
+                                {loading ? "Enviando..." : "Enviar Reserva"}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div className="text-center mt-16">
+                    <p className="text-lg text-gray-600">
+                        También puedes contactar directamente:
+                    </p>
+                    <p className="text-2xl font-bold text-earth-brown mt-4">
+                        +34 600 123 456 • info@gravelemporda360.com
+                    </p>
                 </div>
             </div>
         </div>
     );
-}   
+}

@@ -4,10 +4,10 @@ type BlogPost = {
     id: number;
     title: string;
     excerpt: string;
-    date: string;          // ej: "15 Enero 2026"
-    author: string;
+    date: string;
+    author?: string;
     image: string;
-    category: string;      // ej: "Experiencias", "Gastronomía", "Consejos"
+    category: string;
 };
 
 export default function BlogCard({ post }: { post: BlogPost }) {
@@ -27,7 +27,7 @@ export default function BlogCard({ post }: { post: BlogPost }) {
 
             <div className="p-8">
                 <div className="text-sm text-gray-500 mb-3">
-                    <span>{post.date}</span> • <span>por {post.author}</span>
+                    <span>{post.date}</span> • <span>por {post.author || "Gravel Empordà"}</span>
                 </div>
 
                 <h3 className="text-2xl font-bold text-earth-dark mb-4 line-clamp-2">
@@ -39,7 +39,7 @@ export default function BlogCard({ post }: { post: BlogPost }) {
                 </p>
 
                 <Link
-                    to={`/blog/${post.id}`}  // Futura página de post individual
+                    to={`/blog/${post.id}`}
                     className="inline-block text-earth-brown hover:text-earth-green font-bold transition-colors duration-200"
                 >
                     Leer más →

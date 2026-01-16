@@ -1,46 +1,68 @@
+import { useEffect, useState } from "react";
 import BlogCard from "../components/sections/BlogCard";
 
-// Datos mock de ejemplo. Jordi podrá añadir más fácilmente (o conectar a CMS después)
-const mockPosts = [
-    {
-        id: 1,
-        title: "Una semana inolvidable con el paquete de 7 días",
-        excerpt: "Un grupo de amigos de Bélgica vivió la experiencia completa: rutas variadas, hoteles con encanto y cenas gourmet en restaurantes locales. Aquí su relato y fotos.",
-        date: "10 Enero 2026",
-        author: "Jordi Alòs",
-        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80",
-        category: "Experiencias",
-    },
-    {
-        id: 2,
-        title: "Los mejores restaurantes de ruta en el Baix Empordà",
-        excerpt: "Recomendaciones de paradas obligatorias: desde arroces en Pals hasta pescado fresco en Palamós. Incluimos menús especiales para ciclistas.",
-        date: "5 Enero 2026",
-        author: "Equipo Gravel Empordà",
-        image: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80",
-        category: "Gastronomía",
-    },
-    {
-        id: 3,
-        title: "Consejos para preparar tu gravel en el Empordà",
-        excerpt: "Neumáticos ideales, ropa según temporada, qué llevar en la bolsa... Todo lo que necesitas saber antes de venir.",
-        date: "20 Diciembre 2025",
-        author: "Jordi Alòs",
-        image: "https://images.unsplash.com/photo-1532298229144-0ec0c57515c7?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80",
-        category: "Consejos",
-    },
-    {
-        id: 4,
-        title: "Nueva ruta: Los viñedos del Alt Empordà",
-        excerpt: "Acabamos de añadir una ruta espectacular pasando por bodegas familiares y paisajes de viñedos infinitos. Ya incluida en el paquete de 7 días.",
-        date: "15 Diciembre 2025",
-        author: "Equipo Gravel Empordà",
-        image: "https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80",
-        category: "Novedades",
-    },
-];
+type BlogPost = {
+    id: number;
+    title: string;
+    excerpt: string;
+    image: string | null;
+    date: string; // viene como "15 Enero 2026" desde la API
+    category: string;
+};
 
 export default function Blog() {
+    const [posts, setPosts] = useState<BlogPost[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        const fetchBlogPosts = async () => {
+            try {
+                const response = await fetch("https://spainweb.picklebracket.pro/api/blog-posts");
+
+                if (!response.ok) {
+                    throw new Error("Error al cargar el blog");
+                }
+
+                const data = await response.json();
+                setPosts(data);
+                setLoading(false);
+            } catch (err) {
+                console.error(err);
+                setError("No se pudieron cargar las entradas del blog. Intenta recargar la página.");
+                setLoading(false);
+            }
+        };
+
+        fetchBlogPosts();
+    }, []);
+
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-earth-light flex items-center justify-center">
+                <div className="text-center">
+                    <div className="spinner-border text-earth-brown" role="status" style={{ width: '3rem', height: '3rem' }}>
+                        <span className="visually-hidden">Cargando...</span>
+                    </div>
+                    <p className="mt-4 text-xl text-earth-dark">Cargando el blog...</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="min-h-screen bg-earth-light flex items-center justify-center">
+                <div className="text-center">
+                    <p className="text-2xl text-red-600 mb-4">{error}</p>
+                    <button onClick={() => window.location.reload()} className="btn bg-earth-brown text-white px-6 py-3 rounded-lg">
+                        Recargar página
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="min-h-screen bg-earth-light py-16">
             <div className="max-w-7xl mx-auto px-6">
@@ -54,11 +76,28 @@ export default function Blog() {
                     </p>
                 </div>
 
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-12">
-                    {mockPosts.map((post) => (
-                        <BlogCard key={post.id} post={post} />
-                    ))}
-                </div>
+                {posts.length === 0 ? (
+                    <div className="text-center py-20">
+                        <p className="text-2xl text-gray-600">No hay entradas en el blog todavía.</p>
+                        <p className="text-lg text-gray-500 mt-4">Jordi pronto publicará las primeras experiencias.</p>
+                    </div>
+                ) : (
+                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-12">
+                        {posts.map((post) => (
+                            <BlogCard
+                                key={post.id}
+                                post={{
+                                    id: post.id,
+                                    title: post.title,
+                                    excerpt: post.excerpt,
+                                    image: post.image || "/placeholder.jpg",
+                                    date: post.date,
+                                    category: post.category,
+                                }}
+                            />
+                        ))}
+                    </div>
+                )}
 
                 <div className="text-center mt-16">
                     <p className="text-lg text-gray-600 italic">

@@ -7,7 +7,7 @@ type Package = {
     nights: number;
     price: string;         // ej: "Desde 750€"
     image: string;
-    routesIncluded: number;
+    routesIncluded?: number;  // ← El ? lo hace opcional
     highlights: string[]; // lista de lo que incluye
     description: string;
 };
