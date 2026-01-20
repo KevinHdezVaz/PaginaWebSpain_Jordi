@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import LanguageSwitcher from "../ui/LanguageSwitcher";
 
 export default function Header() {
@@ -14,6 +14,8 @@ export default function Header() {
         { path: "/contact", label: "Contacto" },
         { path: "/configurator", label: "Configuración" },
     ];
+
+    const location = useLocation();
 
     return (
         <header className="bg-[#F5F0E6] text-earth-dark shadow-2xl sticky top-0 z-50">
@@ -34,16 +36,23 @@ export default function Header() {
 
                     {/* Menú Desktop */}
                     <nav className="hidden lg:flex space-x-10">
-                        {navItems.map((item) => (
-                            <Link
-                                key={item.path}
-                                to={item.path}
-                                className="font-medium hover:text-earth-green transition-colors duration-300 relative group"
-                            >
-                                {item.label}
-                                <span className="absolute left-0 right-0 bottom-[-6px] h-0.5 bg-earth-green scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
-                            </Link>
-                        ))}
+                        {navItems.map((item) => {
+                            const isActive = location.pathname === item.path;
+                            return (
+                                <Link
+                                    key={item.path}
+                                    to={item.path}
+                                    className={`font-medium transition-colors duration-300 relative group py-2 ${isActive ? "text-earth-brown font-bold" : "text-earth-dark hover:text-earth-green"
+                                        }`}
+                                >
+                                    {item.label}
+                                    <span
+                                        className={`absolute left-0 right-0 bottom-0 h-0.5 bg-earth-brown transition-transform duration-300 origin-left ${isActive ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100 bg-earth-green"
+                                            }`}
+                                    ></span>
+                                </Link>
+                            );
+                        })}
                     </nav>
 
                     {/* Selector de idioma + Menú móvil */}
@@ -71,16 +80,20 @@ export default function Header() {
                 {isMobileMenuOpen && (
                     <nav className="lg:hidden mt-6 pb-4 border-t border-earth-brown/40 bg-[#F5F0E6]">
                         <div className="flex flex-col space-y-4 mt-4">
-                            {navItems.map((item) => (
-                                <Link
-                                    key={item.path}
-                                    to={item.path}
-                                    onClick={() => setIsMobileMenuOpen(false)}
-                                    className="text-lg font-medium hover:text-earth-green transition-colors py-2"
-                                >
-                                    {item.label}
-                                </Link>
-                            ))}
+                            {navItems.map((item) => {
+                                const isActive = location.pathname === item.path;
+                                return (
+                                    <Link
+                                        key={item.path}
+                                        to={item.path}
+                                        onClick={() => setIsMobileMenuOpen(false)}
+                                        className={`text-lg font-medium transition-colors py-2 ${isActive ? "text-earth-brown font-bold pl-2 border-l-4 border-earth-brown" : "text-earth-dark hover:text-earth-green"
+                                            }`}
+                                    >
+                                        {item.label}
+                                    </Link>
+                                );
+                            })}
                         </div>
                     </nav>
                 )}

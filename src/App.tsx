@@ -11,6 +11,7 @@ import About from "./pages/About";
 import Contact from "./pages/Contact";
 import Configurator from "./pages/Configurator";
 import BlogDetail from "./pages/BlogDetail";
+import RouteDetail from "./pages/RouteDetail";
 
 function App() {
     return (
@@ -28,6 +29,7 @@ function App() {
                         <Route path="/contact" element={<Contact />} />
                         <Route path="/configurator" element={<Configurator />} />
                         <Route path="/blog/:id" element={<BlogDetail />} />
+                        <Route path="/routes/:id" element={<RouteDetail />} />
                     </Routes>
                 </main>
                 <Footer />

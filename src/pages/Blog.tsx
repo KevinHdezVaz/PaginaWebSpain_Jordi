@@ -6,7 +6,7 @@ type BlogPost = {
     title: string;
     excerpt: string;
     image: string | null;
-    date: string; // viene como "15 Enero 2026" desde la API
+    date: string;
     category: string;
 };
 
@@ -19,11 +19,9 @@ export default function Blog() {
         const fetchBlogPosts = async () => {
             try {
                 const response = await fetch("https://spainweb.picklebracket.pro/api/blog-posts");
-
                 if (!response.ok) {
                     throw new Error("Error al cargar el blog");
                 }
-
                 const data = await response.json();
                 setPosts(data);
                 setLoading(false);
@@ -33,7 +31,6 @@ export default function Blog() {
                 setLoading(false);
             }
         };
-
         fetchBlogPosts();
     }, []);
 
@@ -41,10 +38,9 @@ export default function Blog() {
         return (
             <div className="min-h-screen bg-earth-light flex items-center justify-center">
                 <div className="text-center">
-                    <div className="spinner-border text-earth-brown" role="status" style={{ width: '3rem', height: '3rem' }}>
-                        <span className="visually-hidden">Cargando...</span>
-                    </div>
-                    <p className="mt-4 text-xl text-earth-dark">Cargando el blog...</p>
+                    <div className="animate-spin rounded-full h-24 w-24 border-t-8 border-b-8 border-earth-brown mb-8"></div>
+                    <p className="text-3xl font-black text-earth-dark">Cargando experiencias...</p>
+                    <p className="text-lg text-gray-600 mt-4">Preparando las últimas historias del Empordà</p>
                 </div>
             </div>
         );
@@ -52,10 +48,14 @@ export default function Blog() {
 
     if (error) {
         return (
-            <div className="min-h-screen bg-earth-light flex items-center justify-center">
-                <div className="text-center">
-                    <p className="text-2xl text-red-600 mb-4">{error}</p>
-                    <button onClick={() => window.location.reload()} className="btn bg-earth-brown text-white px-6 py-3 rounded-lg">
+            <div className="min-h-screen bg-earth-light flex items-center justify-center p-6">
+                <div className="text-center bg-earth-beige/50 rounded-3xl shadow-2xl p-12 max-w-lg border-2 border-earth-brown/20">
+                    <p className="text-3xl font-black text-earth-dark mb-6">¡Ups!</p>
+                    <p className="text-xl text-red-600 mb-8">{error}</p>
+                    <button
+                        onClick={() => window.location.reload()}
+                        className="bg-earth-brown hover:bg-earth-green text-white font-black px-10 py-5 rounded-2xl text-xl transition-all shadow-xl hover:shadow-2xl transform hover:scale-105"
+                    >
                         Recargar página
                     </button>
                 </div>
@@ -64,25 +64,40 @@ export default function Blog() {
     }
 
     return (
-        <div className="min-h-screen bg-earth-light py-16">
-            <div className="max-w-7xl mx-auto px-6">
-                <div className="text-center mb-16">
-                    <h1 className="text-5xl md:text-6xl font-bold text-earth-dark mb-6">
+        <div className="min-h-screen bg-earth-light">
+            {/* Hero Section */}
+            <div
+                className="relative h-96 md:h-[70vh] bg-cover bg-center text-white flex items-center justify-center overflow-hidden"
+                style={{
+                    backgroundImage:
+                        "url('https://images.unsplash.com/photo-1502086223501-08a3f19f3e62?ixlib=rb-4.0.3&auto=format&fit=crop&w=2400&q=80')",
+                }}
+            >
+                <div className="absolute inset-0 bg-earth-dark/70"></div>
+
+                <div className="relative z-10 text-center px-6 max-w-5xl">
+                    <h1 className="text-5xl md:text-7xl font-black mb-6 leading-tight">
                         Blog & Experiencias
                     </h1>
-                    <p className="text-xl text-gray-700 max-w-4xl mx-auto">
+                    {/* Texto descriptivo con color de letras en el café rgb(139,111,71) */}
+                    <p className="text-xl md:text-3xl font-medium opacity-95 max-w-4xl mx-auto text-[rgb(139,111,71)]">
                         Noticias, relatos de clientes, recomendaciones gastronómicas, novedades en rutas
                         y todo lo que acontece en Gravel Empordà 360º.
                     </p>
                 </div>
+            </div>
 
+            {/* Contenido Principal */}
+            <div className="max-w-7xl mx-auto px-6 py-20">
                 {posts.length === 0 ? (
-                    <div className="text-center py-20">
-                        <p className="text-2xl text-gray-600">No hay entradas en el blog todavía.</p>
-                        <p className="text-lg text-gray-500 mt-4">Jordi pronto publicará las primeras experiencias.</p>
+                    <div className="text-center py-32 bg-earth-beige/30 rounded-3xl shadow-2xl border-2 border-earth-brown/20">
+                        <p className="text-4xl font-black text-earth-dark mb-6">No hay entradas todavía</p>
+                        <p className="text-xl text-gray-700 max-w-2xl mx-auto">
+                            Jordi está preparando las primeras historias auténticas. ¡Volveremos pronto con relatos inolvidables!
+                        </p>
                     </div>
                 ) : (
-                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-12">
+                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-12 lg:gap-16">
                         {posts.map((post) => (
                             <BlogCard
                                 key={post.id}
@@ -99,10 +114,14 @@ export default function Blog() {
                     </div>
                 )}
 
-                <div className="text-center mt-16">
-                    <p className="text-lg text-gray-600 italic">
+                {/* Mensaje final */}
+                <div className="mt-24 text-center bg-earth-beige/30 rounded-3xl p-12 shadow-xl border-2 border-earth-brown/20">
+                    <p className="text-2xl font-bold text-earth-dark mb-4">
+                        ¡Comparte tu aventura con nosotros!
+                    </p>
+                    <p className="text-xl text-gray-700 max-w-3xl mx-auto">
                         Pronto podrás subir tus propias fotos y experiencias tras la ruta.
-                        ¡Queremos compartir tu aventura!
+                        Queremos que el mundo conozca tu historia en el Empordà.
                     </p>
                 </div>
             </div>

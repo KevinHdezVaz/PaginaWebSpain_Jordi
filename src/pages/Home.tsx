@@ -1,6 +1,5 @@
-
-// Por ahora usamos una imagen de ejemplo de Unsplash (luego la cambias por una real del Empordà)
-const heroImage = "https://images.unsplash.com/photo-1507035895480-2b3156c31fc5?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80";
+// Imagen real del Empordà: ciclistas en rutas gravel (fuente: biketours.com)
+const heroImage = "https://cdn.biketours.com/assets/files/4268/catalonia_emporda_spain_gravel_bike_tour_to3.jpg.webp";
 
 export default function Home() {
     return (
@@ -14,7 +13,7 @@ export default function Home() {
                 <div className="absolute inset-0 bg-black/50" />
 
                 <div className="relative z-10 text-white px-6 max-w-4xl">
-                    <h1 className="text-5xl md:text-7xl font-bold mb-6 drop-shadow-lg">
+                    <h1 className="text-5xl md:text-7xl font-bold mb-6 drop-shadow-lg bg-white/10 backdrop-blur-md inline-block px-4 py-2 rounded text-white">
                         Gravel Empordà 360º
                     </h1>
                     <p className="text-xl md:text-3xl mb-10 font-light drop-shadow-md">
