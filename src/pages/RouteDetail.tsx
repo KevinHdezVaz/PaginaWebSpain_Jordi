@@ -117,7 +117,6 @@ export default function RouteDetail() {
                     />
                     <div className="absolute inset-0 bg-gradient-to-b from-earth-dark/70 via-earth-dark/50 to-earth-dark/30"></div>
                 </div>
-
                 {/* Breadcrumb */}
                 <div className="absolute top-6 left-6 z-20">
                     <Link
@@ -130,7 +129,6 @@ export default function RouteDetail() {
                         Volver
                     </Link>
                 </div>
-
                 {/* Hero Content */}
                 <div className="absolute inset-0 flex flex-col items-center justify-center z-10 px-6 text-center">
                     <div className="max-w-5xl">
@@ -167,9 +165,9 @@ export default function RouteDetail() {
                                 <button
                                     key={tab.id}
                                     onClick={() => setActiveTab(tab.id as any)}
-                                    className={`flex items-center gap-4 px-10 py-6 rounded-2xl font-bold text-lg transition-all duration-300 border-2 ${activeTab === tab.id
-                                        ? 'bg-earth-brown text-white border-earth-brown shadow-xl scale-105'
-                                        : 'bg-white text-black border-earth-beige/50 hover:bg-earth-beige hover:shadow-lg'
+                                    className={`flex items-center gap-4 px-10 py-6 rounded-2xl font-bold text-lg transition-all duration-300 border ${activeTab === tab.id
+                                        ? 'bg-earth-brown text-white border-earth-brown/60 shadow-xl scale-105'
+                                        : 'bg-white text-black border-earth-beige/30 hover:bg-earth-beige hover:shadow-lg'
                                         }`}
                                 >
                                     <span className="text-3xl">{tab.icon}</span>
@@ -191,15 +189,14 @@ export default function RouteDetail() {
                                             <h2 className="text-4xl font-black text-earth-dark mb-8 flex items-center gap-4">
                                                 <span className="text-5xl">📖</span> Sobre esta ruta
                                             </h2>
-                                            <div className="bg-earth-beige/20 rounded-3xl p-10 border-2 border-earth-beige/50">
+                                            <div className="bg-earth-beige/20 rounded-3xl p-10 border border-earth-beige/30">
                                                 <p className="text-lg leading-relaxed text-gray-800 whitespace-pre-line">
                                                     {route.description || "Esta ruta ofrece una experiencia inmersiva en el corazón del Empordà, combinando caminos de gravel con paisajes naturales impresionantes. Diseñada por expertos en cicloturismo, garantiza un equilibrio perfecto entre desafío físico y disfrute escénico."}
                                                 </p>
                                             </div>
                                         </div>
-
                                         <div className="grid md:grid-cols-2 gap-8">
-                                            <div className="bg-earth-green/10 rounded-2xl p-8 border-2 border-earth-green/30">
+                                            <div className="bg-earth-green/10 rounded-2xl p-8 border border-earth-green/20">
                                                 <h3 className="text-2xl font-black text-earth-dark mb-4 flex items-center gap-3">
                                                     <span className="text-4xl">🎯</span> Nivel recomendado
                                                 </h3>
@@ -210,7 +207,7 @@ export default function RouteDetail() {
                                                     {route.difficulty === 'Difícil' && ' Solo para ciclistas experimentados.'}
                                                 </p>
                                             </div>
-                                            <div className="bg-earth-brown/10 rounded-2xl p-8 border-2 border-earth-brown/30">
+                                            <div className="bg-earth-brown/10 rounded-2xl p-8 border border-earth-brown/20">
                                                 <h3 className="text-2xl font-black text-earth-dark mb-4 flex items-center gap-3">
                                                     <span className="text-4xl">🌍</span> Zona geográfica
                                                 </h3>
@@ -234,7 +231,7 @@ export default function RouteDetail() {
                                             { icon: "🏰", title: "Patrimonio Medieval y Cultural", desc: "Paradas estratégicas en pueblos históricos con arquitectura medieval preservada." },
                                             { icon: "🍷", title: "Gastronomía y Enoturismo", desc: "Oportunidades para degustar productos locales y visitar bodegas familiares." }
                                         ].map((item, i) => (
-                                            <div key={i} className="flex items-start gap-6 bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow border-2 border-earth-beige/40">
+                                            <div key={i} className="flex items-start gap-6 bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow border border-earth-beige/30">
                                                 <span className="text-6xl flex-shrink-0">{item.icon}</span>
                                                 <div>
                                                     <h3 className="text-2xl font-black text-earth-dark mb-3">{item.title}</h3>
@@ -252,12 +249,12 @@ export default function RouteDetail() {
                                             <span className="text-5xl">💡</span> Consejos prácticos
                                         </h2>
                                         {[
-                                            { icon: "✅", title: "Equipamiento Esencial", content: "Lleva suficiente agua (mínimo 2 litros), herramientas básicas, casco, gafas y protección solar.", bg: "bg-earth-green/10", border: "border-earth-green/40" },
-                                            { icon: "⚠️", title: "Planificación y Clima", content: "Consulta el pronóstico 24h antes. Mejores épocas: primavera y otoño. Evita horas centrales en verano.", bg: "bg-yellow-50", border: "border-yellow-400/50" },
-                                            { icon: "📱", title: "Navegación", content: "Descarga el track GPX antes. Lleva batería externa. Algunas zonas tienen cobertura limitada.", bg: "bg-blue-50", border: "border-blue-400/50" },
-                                            { icon: "🌱", title: "Sostenibilidad", content: "Respeta el entorno, no dejes residuos, cierra portones y sé respetuoso con otros usuarios.", bg: "bg-earth-green/10", border: "border-earth-green/40" }
+                                            { icon: "✅", title: "Equipamiento Esencial", content: "Lleva suficiente agua (mínimo 2 litros), herramientas básicas, casco, gafas y protección solar.", bg: "bg-earth-green/10", border: "border-earth-green/30" },
+                                            { icon: "⚠️", title: "Planificación y Clima", content: "Consulta el pronóstico 24h antes. Mejores épocas: primavera y otoño. Evita horas centrales en verano.", bg: "bg-yellow-50", border: "border-yellow-400/40" },
+                                            { icon: "📱", title: "Navegación", content: "Descarga el track GPX antes. Lleva batería externa. Algunas zonas tienen cobertura limitada.", bg: "bg-blue-50", border: "border-blue-400/40" },
+                                            { icon: "🌱", title: "Sostenibilidad", content: "Respeta el entorno, no dejes residuos, cierra portones y sé respetuoso con otros usuarios.", bg: "bg-earth-green/10", border: "border-earth-green/30" }
                                         ].map((tip, i) => (
-                                            <div key={i} className={`rounded-2xl p-8 ${tip.bg} shadow-lg border-2 ${tip.border}`}>
+                                            <div key={i} className={`rounded-2xl p-8 ${tip.bg} shadow-lg border ${tip.border}`}>
                                                 <div className="flex items-start gap-5">
                                                     <span className="text-5xl flex-shrink-0">{tip.icon}</span>
                                                     <div>
@@ -271,10 +268,10 @@ export default function RouteDetail() {
                                 )}
                             </div>
 
-                            {/* Sidebar (1/3) - Bordes internos sutiles */}
+                            {/* Sidebar (1/3) - Bordes más suaves */}
                             <div className="space-y-10">
-                                {/* Pack de descarga - texto en café claro legible sobre fondo oscuro */}
-                                <div className="bg-gradient-to-br from-earth-brown to-earth-green rounded-3xl p-10 text-[rgb(139,111,71)] shadow-2xl border-2 border-earth-brown/30">
+                                {/* Pack de descarga */}
+                                <div className="bg-gradient-to-br from-earth-brown to-earth-green rounded-3xl p-10 text-[rgb(139,111,71)] shadow-2xl border border-earth-brown/20">
                                     <div className="text-center mb-8">
                                         <div className="text-7xl mb-4">📦</div>
                                         <h3 className="text-3xl font-black mb-2">Pack Completo</h3>
@@ -297,7 +294,7 @@ export default function RouteDetail() {
                                 </div>
 
                                 {/* Info rápida */}
-                                <div className="bg-earth-beige/30 rounded-3xl p-8 border-2 border-earth-beige/60">
+                                <div className="bg-earth-beige/30 rounded-3xl p-8 border border-earth-beige/40">
                                     <h4 className="text-2xl font-black text-earth-dark mb-6 flex items-center gap-3">
                                         <span className="text-3xl">ℹ️</span> Información rápida
                                     </h4>
@@ -308,7 +305,7 @@ export default function RouteDetail() {
                                             { icon: "🛤️", label: "Superficie", value: "70% tierra / 30% asfalto" },
                                             { icon: "🌤️", label: "Época ideal", value: "Primavera - Otoño" }
                                         ].map((item, i) => (
-                                            <div key={i} className="flex items-center justify-between bg-white rounded-xl p-4 shadow-sm border border-earth-beige/50">
+                                            <div key={i} className="flex items-center justify-between bg-white rounded-xl p-4 shadow-sm border border-earth-beige/30">
                                                 <span className="flex items-center gap-3 font-semibold text-gray-700">
                                                     <span className="text-2xl">{item.icon}</span>
                                                     {item.label}
@@ -318,13 +315,9 @@ export default function RouteDetail() {
                                         ))}
                                     </div>
                                 </div>
-
-                                {/* Compartir */}
-
                             </div>
                         </div>
                     </div>
-
                 </div>
             </div>
 

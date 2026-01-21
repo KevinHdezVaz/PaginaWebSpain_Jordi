@@ -66,7 +66,7 @@ export default function Packages() {
 
     return (
         <div className="min-h-screen bg-earth-light">
-            {/* Premium Hero Section - Imagen real de fondo (ciclistas gravel en paisaje del Empordà) */}
+            {/* Premium Hero Section */}
             <div
                 className="relative bg-cover bg-center text-white py-32 md:py-40 overflow-hidden"
                 style={{
@@ -74,13 +74,13 @@ export default function Packages() {
                         "url('https://cdn.biketours.com/assets/files/4268/catalonia_emporda_spain_gravel_bike_tour_to3.jpg.webp')",
                 }}
             >
-                {/* Overlay oscuro para legibilidad */}
+                {/* Overlay oscuro */}
                 <div className="absolute inset-0 bg-earth-dark/70"></div>
 
                 <div className="max-w-7xl mx-auto px-6 relative z-10">
                     <div className="text-center">
                         {/* Trust Badge */}
-                        <div className="inline-flex items-center gap-3 bg-white/20 backdrop-blur-md px-8 py-4 rounded-full mb-10 border border-white/30 shadow-xl">
+                        <div className="inline-flex items-center gap-3 bg-white/20 backdrop-blur-md px-8 py-4 rounded-full mb-12 border border-white/30 shadow-xl">
                             <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
                                 <path
                                     fillRule="evenodd"
@@ -91,10 +91,20 @@ export default function Packages() {
                             <span className="text-lg font-bold">Más de 500 ciclistas satisfechos</span>
                         </div>
 
-                        <h1 className="text-5xl md:text-7xl font-black mb-6 leading-tight">
-                            Experiencias Gravel
-                            <span className="block text-amber-300 mt-3 text-4xl md:text-6xl">Todo Incluido</span>
-                        </h1>
+                        {/* Título principal con fondo blur suave - solo el título, subtítulo vuelve a ámbar y fuera del blur */}
+                        {/* Título principal con fondo blur suave - texto forzado a blanco puro */}
+                        <div className="mb-8">
+                            <div className="inline-block bg-white/20 backdrop-blur-xl px-12 py-10 rounded-3xl shadow-2xl">
+                                <h1 className="text-5xl md:text-7xl font-black leading-tight text-white">
+                                    Experiencias Gravel
+                                </h1>
+                            </div>
+                            <div className="mt-6">
+                                <span className="block text-amber-300 text-4xl md:text-6xl font-black">
+                                    Todo Incluido
+                                </span>
+                            </div>
+                        </div>
 
                         <p className="text-xl md:text-2xl max-w-4xl mx-auto mb-12 leading-relaxed opacity-95">
                             Paquetes premium diseñados para grupos de 4 a 10 personas.
@@ -155,7 +165,7 @@ export default function Packages() {
                     </div>
                 )}
 
-                {/* Custom Package CTA - Imagen de fondo (grupo disfrutando gravel + gastronomía) */}
+                {/* Custom Package CTA */}
                 <div
                     className="mt-32 relative rounded-3xl overflow-hidden shadow-2xl bg-cover bg-center text-white p-16 md:p-24"
                     style={{
@@ -163,25 +173,20 @@ export default function Packages() {
                             "url('https://images.unsplash.com/photo-1551632811-561732d1e306?ixlib=rb-4.0.3&auto=format&fit=crop&w=2400&q=80')",
                     }}
                 >
-                    {/* Overlay oscuro */}
                     <div className="absolute inset-0 bg-earth-dark/75"></div>
-
                     <div className="relative z-10 text-center max-w-4xl mx-auto">
                         <svg className="w-20 h-20 text-earth-green mx-auto mb-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
                         </svg>
-
                         <h2 className="text-5xl md:text-6xl font-black mb-8">
                             ¿Quieres un paquete a medida?
                         </h2>
-
                         <p className="text-2xl mb-12 leading-relaxed opacity-95">
                             Próximamente podrás personalizar tu experiencia en la sección Configuración:
                             <span className="block mt-6 text-amber-200 font-bold text-3xl">
                                 Añadir días • Cambiar hoteles • Incluir actividades extras
                             </span>
                         </p>
-
                         <a
                             href="/configurator"
                             className="inline-flex items-center gap-4 bg-white text-earth-dark hover:bg-amber-100 font-black py-6 px-12 rounded-2xl text-2xl transition-all shadow-2xl hover:shadow-3xl hover:scale-105"

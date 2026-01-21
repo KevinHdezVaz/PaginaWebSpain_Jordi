@@ -15,6 +15,28 @@ type Package = {
 };
 
 export default function PackageCard({ pkg }: { pkg: Package }) {
+    // RUTAS CORRECTAS PARA ARCHIVOS ESTÁTICOS (Laravel estándar con storage público)
+    const imageSrc = pkg.image ? `/storage/${pkg.image}` : "/placeholder.jpg";
+
+    // PDF: usamos el que viene del API o fallback al que existe en la DB para el paquete popular
+    const rawPdfPath = pkg.pdf || (pkg.isPopular ? "packages/pdfs/VoQxTmG2omlxRny4LILWJz5a76zSzIAJQiuXZznI.pdf" : null);
+    const pdfSrc = rawPdfPath ? `/storage/${rawPdfPath}` : null;
+
+    // Highlights: manejamos casos donde viene como array con strings que tienen saltos de línea o unicode escapado
+    const allHighlights = pkg.highlights
+        .flatMap((item) =>
+            // Reemplazamos unicode escapado común (ej: \u00f3 → ó) y dividimos por saltos de línea
+            item
+                .replace(/\\u00f3/g, "ó")
+                .replace(/\\u00e1/g, "á")
+                .replace(/\\u00e9/g, "é")
+                .replace(/\\u00ed/g, "í")
+                .replace(/\\u00fa/g, "ú")
+                .split(/\\r\\n|\\r|\\n|\r\n|\n|\r/)
+        )
+        .map((line) => line.trim())
+        .filter((line) => line !== "");
+
     return (
         <div className="group relative bg-earth-beige/30 rounded-3xl shadow-xl overflow-hidden hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 flex flex-col h-full border-2 border-earth-beige/50">
             {/* Popular Badge */}
@@ -27,17 +49,20 @@ export default function PackageCard({ pkg }: { pkg: Package }) {
                 </div>
             )}
 
-            {/* Image Section with Gradient Overlay */}
+            {/* Image Section */}
             <div className="h-72 overflow-hidden relative">
                 <img
-                    src={pkg.image || "/placeholder.jpg"}
+                    src={imageSrc}
                     alt={pkg.name}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    onError={(e) => {
+                        // Fallback visual si la imagen falla (placeholder)
+                        e.currentTarget.src = "/placeholder.jpg";
+                    }}
                 />
-                {/* Gradient Overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-earth-dark/70 via-earth-dark/30 to-transparent"></div>
 
-                {/* Price Badge - Sin fondo blanco puro */}
+                {/* Price Badge */}
                 <div className="absolute bottom-6 right-6 bg-earth-beige/95 backdrop-blur-sm text-earth-dark px-6 py-4 rounded-2xl shadow-2xl border border-earth-brown/20">
                     <div className="text-sm text-gray-600 font-medium">Desde</div>
                     <div className="text-3xl font-bold text-earth-brown">{pkg.price}</div>
@@ -47,12 +72,11 @@ export default function PackageCard({ pkg }: { pkg: Package }) {
 
             {/* Content Section */}
             <div className="p-8 flex-1 flex flex-col">
-                {/* Package Name */}
                 <h3 className="text-3xl font-bold text-earth-dark mb-4 group-hover:text-earth-brown transition-colors">
                     {pkg.name}
                 </h3>
 
-                {/* Duration with Icons */}
+                {/* Duration */}
                 <div className="flex items-center gap-6 mb-6 pb-6 border-b border-earth-brown/20">
                     <div className="flex items-center gap-2">
                         <div className="w-10 h-10 bg-earth-green/20 rounded-lg flex items-center justify-center">
@@ -78,12 +102,11 @@ export default function PackageCard({ pkg }: { pkg: Package }) {
                     </div>
                 </div>
 
-                {/* Description */}
                 <p className="text-gray-700 mb-6 flex-1 leading-relaxed">
                     {pkg.description || "Experiencia gravel todo incluido en el corazón del Empordà."}
                 </p>
 
-                {/* Highlights with Icons */}
+                {/* Highlights */}
                 <div className="mb-8">
                     <p className="font-bold text-earth-dark mb-4 flex items-center gap-2">
                         <svg className="w-5 h-5 text-earth-green" fill="currentColor" viewBox="0 0 20 20">
@@ -92,8 +115,8 @@ export default function PackageCard({ pkg }: { pkg: Package }) {
                         Incluye:
                     </p>
                     <ul className="space-y-3">
-                        {pkg.highlights.length > 0 ? (
-                            pkg.highlights.map((item, index) => (
+                        {allHighlights.length > 0 ? (
+                            allHighlights.map((item, index) => (
                                 <li key={index} className="flex items-start text-gray-700">
                                     <svg className="w-5 h-5 text-earth-green mr-3 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
@@ -107,9 +130,8 @@ export default function PackageCard({ pkg }: { pkg: Package }) {
                     </ul>
                 </div>
 
-                {/* Action Buttons - Sin fondo blanco */}
+                {/* Botones */}
                 <div className="flex flex-col gap-3 mt-auto">
-                    {/* Primary CTA - Reservar Ahora */}
                     <Link
                         to="/contact"
                         className="w-full text-center bg-[rgb(139,111,71)] hover:bg-[rgb(120,95,60)] text-white font-black text-lg py-5 rounded-2xl transition-all shadow-2xl hover:shadow-3xl transform hover:scale-105 duration-300 flex items-center justify-center gap-3"
@@ -120,17 +142,17 @@ export default function PackageCard({ pkg }: { pkg: Package }) {
                         Reservar Ahora
                     </Link>
 
-                    {/* Secondary CTA - PDF Download */}
-                    {pkg.pdf ? (
+                    {pdfSrc ? (
                         <a
-                            href={pkg.pdf}
-                            download={`Paquete-${pkg.name.replace(/[^a-z0-9]/gi, '-').toLowerCase()}.pdf`}
+                            href={pdfSrc}
+                            target="_blank"
+                            rel="noopener noreferrer"
                             className="w-full text-center bg-earth-beige/60 hover:bg-earth-beige text-earth-dark font-bold py-3 rounded-xl transition-all border-2 border-earth-brown/30 hover:border-earth-brown flex items-center justify-center gap-2"
                         >
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                             </svg>
-                            Descargar PDF
+                            Ver / Descargar PDF
                         </a>
                     ) : (
                         <div className="w-full text-center bg-earth-beige/40 text-gray-600 font-semibold py-3 rounded-xl flex items-center justify-center gap-2 border-2 border-earth-beige/60">
@@ -143,7 +165,6 @@ export default function PackageCard({ pkg }: { pkg: Package }) {
                 </div>
             </div>
 
-            {/* Hover Effect Border */}
             <div className="absolute inset-0 border-4 border-transparent group-hover:border-earth-green rounded-3xl transition-all duration-500 pointer-events-none"></div>
         </div>
     );
