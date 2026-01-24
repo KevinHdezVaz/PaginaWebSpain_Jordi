@@ -23,12 +23,10 @@ export default function Header() {
             <div className="max-w-7xl mx-auto px-6 py-5 bg-[#F5F0E6]">
                 <div className="flex justify-between items-center">
                     {/* Logo + Nombre */}
-                    <Link to="/" className="flex items-center space-x-3 group">
-                        <div className="w-12 h-12 bg-earth-brown rounded-full flex items-center justify-center overflow-hidden transition-transform duration-500 group-hover:rotate-12 group-hover:scale-110">
-                            <img src={logo} alt="Gravel Empordà Logo" className="w-full h-full object-cover" />
-                        </div>
+                    <Link to="/" className="flex items-center space-x-3">
+                        <img src={logo} alt="Gravel Empordà Logo" className="h-12 w-auto rounded-xl" />
                         <span className="text-2xl font-black tracking-tight hidden sm:block">
-                            Gravel Empordà <span className="text-earth-brown group-hover:text-earth-green transition-colors">360º</span>
+                            Gravel Empordà <span className="text-earth-brown">360º</span>
                         </span>
                         <span className="text-2xl font-black tracking-tight sm:hidden">
                             GE 360º
@@ -47,8 +45,8 @@ export default function Header() {
                                     key={item.path}
                                     to={item.path}
                                     className={`relative px-5 py-2.5 text-sm font-black transition-all duration-300 rounded-2xl group ${isActive
-                                            ? "text-earth-brown bg-earth-beige shadow-[0_4px_12px_rgba(139,111,71,0.15)] scale-105"
-                                            : "text-earth-dark hover:text-earth-brown hover:bg-earth-brown/5"
+                                        ? "text-earth-brown bg-earth-beige shadow-[0_4px_12px_rgba(139,111,71,0.15)] scale-105"
+                                        : "text-earth-dark hover:text-earth-brown hover:bg-earth-brown/5"
                                         }`}
                                 >
                                     <span className="relative z-10">{item.label}</span>
@@ -94,8 +92,8 @@ export default function Header() {
                                         to={item.path}
                                         onClick={() => setIsMobileMenuOpen(false)}
                                         className={`flex items-center px-6 py-4 rounded-2xl text-lg font-black transition-all duration-300 ${isActive
-                                                ? "bg-earth-beige text-earth-brown shadow-lg scale-[1.02] translate-x-2"
-                                                : "text-earth-dark hover:bg-earth-brown/5"
+                                            ? "bg-earth-beige text-earth-brown shadow-lg scale-[1.02] translate-x-2"
+                                            : "text-earth-dark hover:bg-earth-brown/5"
                                             }`}
                                     >
                                         {isActive && (

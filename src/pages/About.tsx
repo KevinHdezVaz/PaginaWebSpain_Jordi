@@ -11,7 +11,7 @@ export default function About() {
             >
                 <div className="absolute inset-0 bg-earth-dark/60" />
                 <div className="relative z-10 text-white px-6 max-w-4xl">
-                    <h1 className="text-5xl md:text-7xl font-bold mb-6 drop-shadow-lg">
+                    <h1 className="text-5xl md:text-7xl font-bold mb-6 drop-shadow-lg bg-white/10 backdrop-blur-md inline-block px-4 py-2 rounded text-white">
                         Sobre Gravel Empordà 360º
                     </h1>
                     <p className="text-xl md:text-3xl font-light drop-shadow-md">
@@ -101,7 +101,7 @@ export default function About() {
                     <h2 className="text-4xl md:text-5xl font-bold mb-8">
                         ¿Te unes a la próxima aventura?
                     </h2>
-                    <p className="text-xl mb-10 max-w-2xl mx-auto">
+                    <p className="text-xl mb-10 text-black max-w-2xl mx-auto">
                         Ven a descubrir el Empordà de una forma única, auténtica y llena de vida.
                     </p>
                     <div className="space-x-6">

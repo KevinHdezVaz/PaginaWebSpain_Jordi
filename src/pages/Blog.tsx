@@ -37,8 +37,8 @@ export default function Blog() {
     if (loading) {
         return (
             <div className="min-h-screen bg-earth-light flex items-center justify-center">
-                <div className="text-center">
-                    <div className="animate-spin rounded-full h-24 w-24 border-t-8 border-b-8 border-earth-brown mb-8"></div>
+                <div className="flex flex-col items-center justify-center text-center mx-auto">
+                    <div className="animate-spin rounded-full h-24 w-24 border-t-8 border-b-8 border-earth-brown mb-8 flex-shrink-0"></div>
                     <p className="text-3xl font-black text-earth-dark">Cargando experiencias...</p>
                     <p className="text-lg text-gray-600 mt-4">Preparando las últimas historias del Empordà</p>
                 </div>
@@ -76,7 +76,7 @@ export default function Blog() {
                 <div className="absolute inset-0 bg-earth-dark/70"></div>
 
                 <div className="relative z-10 text-center px-6 max-w-5xl">
-                    <h1 className="text-5xl md:text-7xl font-black mb-6 leading-tight">
+                    <h1 className="text-5xl md:text-7xl font-black mb-6 leading-tight drop-shadow-lg bg-white/10 backdrop-blur-md inline-block px-4 py-3 rounded text-white">
                         Blog & Experiencias
                     </h1>
                     {/* Texto descriptivo con color de letras en el café rgb(139,111,71) */}

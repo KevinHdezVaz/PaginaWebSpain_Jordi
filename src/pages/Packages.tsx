@@ -632,7 +632,9 @@ export default function Packages() {
             >
                 <div className="absolute inset-0 bg-earth-dark/75"></div>
                 <div className="relative z-10 max-w-7xl mx-auto px-6 text-center">
-                    <h1 className="text-5xl md:text-7xl font-black mb-6">Experiencias Gravel Premium</h1>
+                    <h1 className="text-5xl md:text-7xl font-black mb-6 drop-shadow-lg bg-white/10 backdrop-blur-md inline-block px-4 py-2 rounded text-white">
+                        Experiencias Gravel Premium
+                    </h1>
                     <p className="text-2xl md:text-3xl mb-12 max-w-4xl mx-auto font-light">
                         Paquetes todo incluido para grupos de 2 a 10 personas en el Empordà
                     </p>

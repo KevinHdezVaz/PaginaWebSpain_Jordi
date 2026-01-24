@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import logo from "../../assets/icons/logo1.jpeg";
 
 export default function Footer() {
     const currentYear = new Date().getFullYear();
@@ -20,13 +21,11 @@ export default function Footer() {
                     {/* Logo y descripción */}
                     <div className="md:col-span-1">
                         <div className="flex items-center space-x-4 mb-6">
-                            <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center text-2xl font-bold">
-                                GE
-                            </div>
+                            <img src={logo} alt="Gravel Empordà Logo" className="h-16 w-auto rounded-xl" />
                             <span className="text-2xl font-bold">Gravel Empordà 360º</span>
                         </div>
                         <p className="text-earth-light leading-relaxed opacity-90">
-                            Rudtas cicloturistas premium en el corazón del Empordà. Experiencias únicas combinando gravel, cultura y gastronomía.
+                            Rutas cicloturistas premium en el corazón del Empordà. Experiencias únicas combinando gravel, cultura y gastronomía.
                         </p>
                     </div>
 
