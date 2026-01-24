@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Header from "./components/layout/Header";
 import Footer from "./components/layout/Footer";
+import ScrollToTop from "./components/ui/ScrollToTop";
 
 import Home from "./pages/Home";
 import RoutesPage from "./pages/Routes";
@@ -12,9 +13,15 @@ import Configurator from "./pages/Configurator";
 import BlogDetail from "./pages/BlogDetail";
 import RouteDetail from "./pages/RouteDetail";
 
+// Páginas Legales
+import PrivacyPolicy from "./pages/legal/PrivacyPolicy";
+import TermsConditions from "./pages/legal/TermsConditions";
+import RefundPolicy from "./pages/legal/RefundPolicy";
+
 function App() {
   return (
     <Router>
+      <ScrollToTop />
       <div className="flex flex-col min-h-screen">  {/* ← Solo quitamos bg-earth-light */}
         <Header />
 
@@ -29,6 +36,11 @@ function App() {
             <Route path="/configurator" element={<Configurator />} />
             <Route path="/blog/:id" element={<BlogDetail />} />
             <Route path="/routes/:id" element={<RouteDetail />} />
+
+            {/* Rutas Legales */}
+            <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/terms" element={<TermsConditions />} />
+            <Route path="/refund" element={<RefundPolicy />} />
           </Routes>
         </main>
 

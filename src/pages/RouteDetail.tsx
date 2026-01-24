@@ -321,6 +321,56 @@ export default function RouteDetail() {
                 </div>
             </div>
 
+            {/* Sección de Descargas Técnicas */}
+            <div className="max-w-7xl mx-auto px-6 pb-20">
+                <div className="bg-white rounded-3xl p-10 shadow-xl border-2 border-earth-brown/10">
+                    <h3 className="text-3xl font-black text-earth-dark mb-8 flex items-center gap-4">
+                        <svg className="w-8 h-8 text-earth-brown" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        </svg>
+                        Documentación Técnica
+                    </h3>
+
+                    <div className="grid md:grid-cols-2 gap-8">
+                        {/* Guía PDF */}
+                        <div className="flex items-center justify-between p-6 bg-earth-beige/20 rounded-2xl border border-earth-brown/10 hover:border-earth-brown/30 transition-all cursor-pointer group">
+                            <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 bg-red-100 text-red-600 rounded-xl flex items-center justify-center">
+                                    <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clipRule="evenodd" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p className="font-bold text-earth-dark group-hover:text-earth-brown transition-colors">Guía Detallada (PDF)</p>
+                                    <p className="text-sm text-gray-500">Incluye track, puntos de interés y recomendaciones.</p>
+                                </div>
+                            </div>
+                            <span className="text-earth-brown font-black">Descargar</span>
+                        </div>
+
+                        {/* Tracks GPS */}
+                        <div className="flex flex-col gap-4">
+                            <div className="flex items-center justify-between p-6 bg-orange-50 rounded-2xl border border-orange-200 hover:border-orange-400 transition-all cursor-pointer group">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-12 h-12 bg-orange-100 text-orange-600 rounded-xl flex items-center justify-center">
+                                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        </svg>
+                                    </div>
+                                    <p className="font-bold text-earth-dark">Track Strava / Wikiloc</p>
+                                </div>
+                                <span className="text-orange-600 font-black">Ver Track</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="mt-16 text-center text-gray-600 italic">
+                    * Recuerda que nuestras rutas son cuidadosamente diseñadas para ofrecer la mejor experiencia Gravel en el Empordà.
+                </div>
+            </div>
+
             <style>{`
         @keyframes fade-in {
           from { opacity: 0; transform: translateY(20px); }

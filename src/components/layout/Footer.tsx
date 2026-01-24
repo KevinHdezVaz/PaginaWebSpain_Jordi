@@ -16,7 +16,7 @@ export default function Footer() {
     return (
         <footer className="bg-[#5D4037] text-white mt-auto">
             <div className="max-w-7xl mx-auto px-6 py-16">
-                <div className="grid md:grid-cols-4 gap-12">
+                <div className="grid md:grid-cols-5 gap-12">
                     {/* Logo y descripción */}
                     <div className="md:col-span-1">
                         <div className="flex items-center space-x-4 mb-6">
@@ -68,6 +68,28 @@ export default function Footer() {
                                     <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
                                 </svg>
                                 <span>Baix Empordà, Girona, Catalunya</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    {/* Legal */}
+                    <div>
+                        <h3 className="text-xl font-bold mb-6 text-white">Legal</h3>
+                        <ul className="space-y-3">
+                            <li>
+                                <Link to="/privacy" className="hover:text-earth-green transition-colors block opacity-90 hover:opacity-100">
+                                    Política de Privacidad
+                                </Link>
+                            </li>
+                            <li>
+                                <Link to="/terms" className="hover:text-earth-green transition-colors block opacity-90 hover:opacity-100">
+                                    Términos y Condiciones
+                                </Link>
+                            </li>
+                            <li>
+                                <Link to="/refund" className="hover:text-earth-green transition-colors block opacity-90 hover:opacity-100">
+                                    Política de Devolución
+                                </Link>
                             </li>
                         </ul>
                     </div>

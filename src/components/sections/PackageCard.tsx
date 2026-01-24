@@ -7,25 +7,23 @@ type Package = {
     nights: number;
     price: string;
     image: string | null;
-    routesIncluded?: number;
-    highlights: string[];
     description: string | null;
+    highlights: string[];
     pdf?: string | null;
     isPopular?: boolean;
 };
 
-export default function PackageCard({ pkg }: { pkg: Package }) {
-    // RUTAS CORRECTAS PARA ARCHIVOS ESTÁTICOS (Laravel estándar con storage público)
-    const imageSrc = pkg.image ? `/storage/${pkg.image}` : "/placeholder.jpg";
+export default function PackageCard({ pkg, onSelect }: { pkg: Package; onSelect?: (pkg: Package) => void }) {
+    // Imagen: ya viene completa desde la API
+    const hasImage = !!pkg.image?.trim();
+    const imageSrc = hasImage ? pkg.image! : "";
 
-    // PDF: usamos el que viene del API o fallback al que existe en la DB para el paquete popular
-    const rawPdfPath = pkg.pdf || (pkg.isPopular ? "packages/pdfs/VoQxTmG2omlxRny4LILWJz5a76zSzIAJQiuXZznI.pdf" : null);
-    const pdfSrc = rawPdfPath ? `/storage/${rawPdfPath}` : null;
+    // PDF: mismo caso
+    const pdfSrc = pkg.pdf ? pkg.pdf : null;
 
-    // Highlights: manejamos casos donde viene como array con strings que tienen saltos de línea o unicode escapado
+    // Highlights: limpiamos y separamos por líneas
     const allHighlights = pkg.highlights
         .flatMap((item) =>
-            // Reemplazamos unicode escapado común (ej: \u00f3 → ó) y dividimos por saltos de línea
             item
                 .replace(/\\u00f3/g, "ó")
                 .replace(/\\u00e1/g, "á")
@@ -37,8 +35,15 @@ export default function PackageCard({ pkg }: { pkg: Package }) {
         .map((line) => line.trim())
         .filter((line) => line !== "");
 
+    const handleButtonClick = (e: React.MouseEvent) => {
+        if (onSelect) {
+            e.stopPropagation();
+            onSelect(pkg);
+        }
+    };
+
     return (
-        <div className="group relative bg-earth-beige/30 rounded-3xl shadow-xl overflow-hidden hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 flex flex-col h-full border-2 border-earth-beige/50">
+        <div className="group relative bg-earth-beige/30 rounded-3xl shadow-xl overflow-hidden hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 flex flex-col h-full border-2 border-earth-beige/50 cursor-pointer">
             {/* Popular Badge */}
             {pkg.isPopular && (
                 <div className="absolute top-6 left-6 z-20 bg-gradient-to-r from-earth-green to-green-600 text-white px-5 py-2 rounded-full text-sm font-bold shadow-lg flex items-center gap-2">
@@ -49,34 +54,69 @@ export default function PackageCard({ pkg }: { pkg: Package }) {
                 </div>
             )}
 
-            {/* Image Section */}
+            {/* Imagen o placeholder */}
             <div className="h-72 overflow-hidden relative">
-                <img
-                    src={imageSrc}
-                    alt={pkg.name}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                    onError={(e) => {
-                        // Fallback visual si la imagen falla (placeholder)
-                        e.currentTarget.src = "/placeholder.jpg";
-                    }}
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-earth-dark/70 via-earth-dark/30 to-transparent"></div>
+                {hasImage ? (
+                    <img
+                        src={imageSrc}
+                        alt={pkg.name}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                        onError={(e) => {
+                            e.currentTarget.style.display = "none";
+                            const placeholder = e.currentTarget.nextElementSibling as HTMLElement | null;
+                            if (placeholder) placeholder.style.display = "flex";
+                        }}
+                    />
+                ) : null}
 
-                {/* Price Badge */}
+                <div
+                    className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-earth-beige/40 to-earth-beige/70 text-earth-dark/70"
+                    style={{ display: hasImage ? "none" : "flex" }}
+                >
+                    <svg
+                        className="w-24 h-24 mb-4 opacity-80"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                    >
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={1.5}
+                            d="M3 15l4-4 4 4 8-8M3 21h18"
+                        />
+                        <circle cx="16" cy="8" r="2" />
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={1.5}
+                            d="M12 4v16"
+                        />
+                    </svg>
+                    <span className="text-lg font-medium tracking-wide">Sin fotografía</span>
+                    <span className="text-sm mt-1 opacity-80">{pkg.name}</span>
+                </div>
+
+                <div className="absolute inset-0 bg-gradient-to-t from-earth-dark/70 via-earth-dark/30 to-transparent pointer-events-none"></div>
+
+                {/* Badge de precio */}
                 <div className="absolute bottom-6 right-6 bg-earth-beige/95 backdrop-blur-sm text-earth-dark px-6 py-4 rounded-2xl shadow-2xl border border-earth-brown/20">
                     <div className="text-sm text-gray-600 font-medium">Desde</div>
-                    <div className="text-3xl font-bold text-earth-brown">{pkg.price}</div>
+                    <div className="text-3xl font-bold text-earth-brown">
+                        {pkg.price.includes("€") ? pkg.price : `${pkg.price} €`}
+                    </div>
                     <div className="text-xs text-gray-500">por persona</div>
                 </div>
             </div>
 
-            {/* Content Section */}
+            {/* Contenido */}
             <div className="p-8 flex-1 flex flex-col">
                 <h3 className="text-3xl font-bold text-earth-dark mb-4 group-hover:text-earth-brown transition-colors">
                     {pkg.name}
                 </h3>
 
-                {/* Duration */}
+                {/* Duración */}
                 <div className="flex items-center gap-6 mb-6 pb-6 border-b border-earth-brown/20">
                     <div className="flex items-center gap-2">
                         <div className="w-10 h-10 bg-earth-green/20 rounded-lg flex items-center justify-center">
@@ -89,6 +129,7 @@ export default function PackageCard({ pkg }: { pkg: Package }) {
                             <div className="text-xs text-gray-500 uppercase tracking-wide">Días</div>
                         </div>
                     </div>
+
                     <div className="flex items-center gap-2">
                         <div className="w-10 h-10 bg-earth-brown/20 rounded-lg flex items-center justify-center">
                             <svg className="w-5 h-5 text-earth-brown" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -130,39 +171,16 @@ export default function PackageCard({ pkg }: { pkg: Package }) {
                     </ul>
                 </div>
 
-                {/* Botones */}
-                <div className="flex flex-col gap-3 mt-auto">
-                    <Link
-                        to="/contact"
-                        className="w-full text-center bg-[rgb(139,111,71)] hover:bg-[rgb(120,95,60)] text-white font-black text-lg py-5 rounded-2xl transition-all shadow-2xl hover:shadow-3xl transform hover:scale-105 duration-300 flex items-center justify-center gap-3"
-                    >
-                        <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                        </svg>
-                        Reservar Ahora
-                    </Link>
-
-                    {pdfSrc ? (
-                        <a
-                            href={pdfSrc}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="w-full text-center bg-earth-beige/60 hover:bg-earth-beige text-earth-dark font-bold py-3 rounded-xl transition-all border-2 border-earth-brown/30 hover:border-earth-brown flex items-center justify-center gap-2"
-                        >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
-                            Ver / Descargar PDF
-                        </a>
-                    ) : (
-                        <div className="w-full text-center bg-earth-beige/40 text-gray-600 font-semibold py-3 rounded-xl flex items-center justify-center gap-2 border-2 border-earth-beige/60">
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                            </svg>
-                            PDF Próximamente
-                        </div>
-                    )}
-                </div>
+                {/* Botón único: Ver detalles y cotizar */}
+                <button
+                    onClick={handleButtonClick}
+                    className="w-full text-center bg-gradient-to-r from-earth-brown to-earth-green hover:from-earth-dark hover:to-earth-brown text-white font-black text-lg py-5 rounded-2xl transition-all shadow-2xl hover:shadow-3xl transform hover:scale-105 duration-300 flex items-center justify-center gap-3 mt-auto"
+                >
+                    <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                    </svg>
+                    Ver detalles y cotizar
+                </button>
             </div>
 
             <div className="absolute inset-0 border-4 border-transparent group-hover:border-earth-green rounded-3xl transition-all duration-500 pointer-events-none"></div>
