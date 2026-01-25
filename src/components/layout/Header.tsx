@@ -61,18 +61,24 @@ export default function Header() {
 
                         <button
                             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                            className={`lg:hidden w-11 h-11 flex items-center justify-center rounded-2xl transition-all duration-300 ${isMobileMenuOpen ? "bg-earth-brown text-white rotate-90 shadow-lg" : "bg-earth-brown/10 text-earth-dark hover:bg-earth-brown/20"
+                            className={`lg:hidden w-11 h-11 flex flex-col items-center justify-center rounded-2xl transition-all duration-300 shadow-lg relative ${isMobileMenuOpen ? "bg-[#4A3F35]" : "bg-[#8B6F47]"
                                 }`}
                             aria-label="Toggle menu"
                         >
-                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2.5}
-                                    d={isMobileMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
-                                />
-                            </svg>
+                            <div className="relative w-6 h-5 flex flex-col justify-between">
+                                <span
+                                    className={`block h-0.5 w-6 bg-white rounded-full transition-all duration-300 ${isMobileMenuOpen ? "rotate-45 translate-y-2.25" : ""
+                                        }`}
+                                ></span>
+                                <span
+                                    className={`block h-0.5 w-6 bg-white rounded-full transition-all duration-300 ${isMobileMenuOpen ? "opacity-0" : ""
+                                        }`}
+                                ></span>
+                                <span
+                                    className={`block h-0.5 w-6 bg-white rounded-full transition-all duration-300 ${isMobileMenuOpen ? "-rotate-45 -translate-y-2.25" : ""
+                                        }`}
+                                ></span>
+                            </div>
                         </button>
                     </div>
                 </div>
