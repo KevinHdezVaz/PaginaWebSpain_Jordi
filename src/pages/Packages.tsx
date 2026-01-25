@@ -246,7 +246,7 @@ function CheckoutForm({ pkg, onClose }: { pkg: Package; onClose: () => void }) {
                         </div>
 
                         {/* Fechas */}
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                             <div>
                                 <label className="block font-bold text-earth-dark mb-2">
                                     Fecha inicio <span className="text-red-600">*</span>
@@ -407,39 +407,39 @@ function CheckoutForm({ pkg, onClose }: { pkg: Package; onClose: () => void }) {
             {/* ── Modal Selección de Método de Pago ──────────────────────────────── */}
             {showMethodModal && (
                 <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/75 backdrop-blur-md px-4 transition-all duration-500">
-                    <div className="bg-white rounded-[2.5rem] p-10 md:p-14 max-w-2xl w-full shadow-[0_20px_50px_rgba(0,0,0,0.3)] relative animate-in fade-in zoom-in duration-300">
+                    <div className="bg-white rounded-3xl md:rounded-[2.5rem] p-6 sm:p-10 md:p-14 max-w-2xl w-full shadow-[0_20px_50px_rgba(0,0,0,0.3)] relative animate-in fade-in zoom-in duration-300">
                         <button
                             onClick={() => setShowMethodModal(false)}
-                            className="absolute top-6 right-8 text-4xl text-gray-400 hover:text-earth-dark transition-all hover:rotate-90"
+                            className="absolute top-4 right-4 sm:top-6 sm:right-8 w-11 h-11 flex items-center justify-center bg-[#8B6F47] text-white rounded-xl text-2xl hover:bg-[#4A3F35] transition-all shadow-lg hover:rotate-90 z-10"
                         >
                             ×
                         </button>
 
-                        <div className="text-center mb-12">
-                            <h3 className="text-3xl md:text-4xl font-black text-earth-dark mb-4 tracking-tight">
-                                ¿Cómo quieres pagar el depósito?
+                        <div className="text-center mb-6 sm:mb-12 pt-4 sm:pt-0">
+                            <h3 className="text-2xl sm:text-3xl md:text-4xl font-black text-earth-dark mb-3 tracking-tight px-2">
+                                ¿Cómo quieres pagar?
                             </h3>
-                            <p className="text-gray-500 text-lg max-w-md mx-auto">
-                                Selecciona tu método de pago preferido para confirmar tu reserva de forma segura
+                            <p className="text-gray-500 text-sm sm:text-lg max-w-md mx-auto px-4">
+                                Selecciona tu método de pago para confirmar
                             </p>
                         </div>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-8">
                             <button
                                 onClick={() => {
                                     setSelectedMethod("stripe");
                                     setShowMethodModal(false);
                                 }}
-                                className="group flex flex-col items-center text-center p-8 border-2 border-earth-brown/10 rounded-3xl hover:border-earth-green hover:bg-earth-green/5 transition-all duration-300 shadow-sm hover:shadow-xl transform hover:-translate-y-2"
+                                className="group flex flex-col items-center text-center p-3 sm:p-8 border-2 border-earth-brown/10 rounded-2xl sm:rounded-3xl hover:border-earth-green hover:bg-earth-green/5 transition-all duration-300 shadow-sm hover:shadow-xl sm:transform hover:-translate-y-2"
                             >
-                                <div className="w-20 h-20 mb-6 rounded-2xl bg-earth-brown/5 flex items-center justify-center group-hover:bg-earth-green/20 transition-colors duration-300">
-                                    <svg className="w-12 h-12 text-earth-brown group-hover:text-earth-green transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <div className="w-10 h-10 sm:w-20 sm:h-20 mb-2 sm:mb-6 rounded-xl bg-earth-brown/5 flex items-center justify-center group-hover:bg-earth-green/20 transition-colors duration-300">
+                                    <svg className="w-6 h-6 sm:w-12 sm:h-12 text-earth-brown group-hover:text-earth-green transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                                     </svg>
                                 </div>
-                                <span className="font-black text-2xl text-earth-dark mb-2">Tarjeta</span>
-                                <span className="text-sm text-white-500 leading-relaxed">
-                                    Pago seguro con crédito o débito</span>
+                                <span className="font-black text-lg sm:text-2xl text-earth-dark mb-1">Tarjeta</span>
+                                <span className="text-[10px] sm:text-sm text-white-500 leading-relaxed">
+                                    Seguro con crédito/débito</span>
                             </button>
 
                             <button
@@ -447,25 +447,25 @@ function CheckoutForm({ pkg, onClose }: { pkg: Package; onClose: () => void }) {
                                     setSelectedMethod("paypal");
                                     setShowMethodModal(false);
                                 }}
-                                className="group flex flex-col items-center text-center p-8 border-2 border-earth-brown/10 rounded-3xl hover:border-earth-green hover:bg-earth-green/5 transition-all duration-300 shadow-sm hover:shadow-xl transform hover:-translate-y-2"
+                                className="group flex flex-col items-center text-center p-3 sm:p-8 border-2 border-earth-brown/10 rounded-2xl sm:rounded-3xl hover:border-earth-green hover:bg-earth-green/5 transition-all duration-300 shadow-sm hover:shadow-xl sm:transform hover:-translate-y-2"
                             >
-                                <div className="w-20 h-20 mb-6 rounded-2xl bg-earth-brown/5 flex items-center justify-center group-hover:bg-earth-green/20 transition-colors duration-300">
-                                    <svg className="w-12 h-12" viewBox="0 0 24 24" fill="currentColor">
+                                <div className="w-10 h-10 sm:w-20 sm:h-20 mb-2 sm:mb-6 rounded-xl bg-earth-brown/5 flex items-center justify-center group-hover:bg-earth-green/20 transition-colors duration-300">
+                                    <svg className="w-6 h-6 sm:w-12 sm:h-12" viewBox="0 0 24 24" fill="currentColor">
                                         <path d="M20.067 8.178c-.652-3.132-2.903-4.212-5.717-4.212H8.354A1.05 1.05 0 0 0 7.3 5.016L4.544 22.14c-.066.425.263.804.693.804H9.79l.564-3.535l.08-.501h3.351c3.553 0 6.345-1.444 7.159-5.594c.333-1.693.184-3.2-.877-5.136zm-2.83 5.25c-.538 2.756-2.583 2.756-4.665 2.756H10.19l.794-4.96h2.382c2.146 0 2.972.103 3.394 1.1c.264.63.153 1.104.477-1.104z" stroke="currentColor" strokeWidth="0.5" className="text-earth-brown group-hover:text-blue-600 transition-colors" />
                                     </svg>
                                 </div>
-                                <span className="font-black text-2xl text-earth-dark mb-2">PayPal</span>
-                                <span className="text-sm text-white-500 leading-relaxed">
-                                    Accede a tu cuenta de <span className="font-bold text-[#003087]">PayPal</span> para pagar de forma rápida y segura
+                                <span className="font-black text-lg sm:text-2xl text-earth-dark mb-1">PayPal</span>
+                                <span className="text-[10px] sm:text-sm text-white-500 leading-relaxed px-1">
+                                    Paga con tu cuenta
                                 </span>
                             </button>
                         </div>
 
-                        <div className="mt-12 pt-8 border-t border-gray-100 flex items-center justify-center gap-2 text-gray-400 text-sm font-medium">
+                        <div className="mt-8 pt-6 border-t border-gray-100 flex items-center justify-center gap-2 text-gray-400 text-[10px] sm:text-sm font-medium">
                             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                                 <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
                             </svg>
-                            Conexión Segura Encriptada de 256 bits
+                            Pago Seguro Encriptado
                         </div>
                     </div>
                 </div>
@@ -474,11 +474,17 @@ function CheckoutForm({ pkg, onClose }: { pkg: Package; onClose: () => void }) {
             {/* ── Modal Stripe (tarjeta) ──────────────────────────────────────── */}
             {selectedMethod === "stripe" && (
                 <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/60 px-4">
-                    <div className="bg-white rounded-3xl p-8 max-w-lg w-full shadow-2xl">
-                        <h3 className="text-2xl font-bold text-earth-dark mb-6 text-center">
+                    <div className="bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl relative">
+                        <button
+                            onClick={() => setSelectedMethod(null)}
+                            className="absolute top-3 right-3 sm:top-4 sm:right-5 w-10 h-10 flex items-center justify-center bg-[#8B6F47] text-white rounded-xl text-2xl hover:bg-[#4A3F35] transition-all shadow-lg"
+                        >
+                            ×
+                        </button>
+                        <h3 className="text-xl sm:text-2xl font-bold text-earth-dark mb-6 text-center">
                             Pago con Tarjeta
                         </h3>
-                        <div className="p-5 border-2 border-earth-brown/20 rounded-xl bg-gray-50 mb-6">
+                        <div className="p-4 sm:p-5 border-2 border-earth-brown/20 rounded-xl bg-gray-50 mb-6">
                             <CardElement
                                 options={{
                                     style: {
@@ -495,19 +501,12 @@ function CheckoutForm({ pkg, onClose }: { pkg: Package; onClose: () => void }) {
                         <button
                             onClick={handleStripePayment}
                             disabled={paymentLoading}
-                            className="w-full bg-earth-green hover:bg-earth-dark text-white font-black py-4 rounded-xl transition-all disabled:opacity-50"
+                            className="w-full bg-earth-green hover:bg-earth-dark text-white font-black py-4 rounded-xl transition-all disabled:opacity-50 text-lg"
                         >
                             {paymentLoading ? "Procesando..." : `Pagar ${deposit.toFixed(2)} € ahora`}
                         </button>
 
-                        <button
-                            onClick={() => setSelectedMethod(null)}
-                            className="mt-4 text-white-600 underline w-full text-center block"
-                        >
-                            Volver a métodos de pago
-                        </button>
-
-                        {formError && <p className="mt-4 text-red-600 text-center">{formError}</p>}
+                        {formError && <p className="mt-4 text-red-600 text-center text-sm">{formError}</p>}
                     </div>
                 </div>
             )}
@@ -515,8 +514,14 @@ function CheckoutForm({ pkg, onClose }: { pkg: Package; onClose: () => void }) {
             {/* ── Modal PayPal ────────────────────────────────────────────────── */}
             {selectedMethod === "paypal" && (
                 <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/60 px-4">
-                    <div className="bg-white rounded-3xl p-8 max-w-lg w-full shadow-2xl">
-                        <h3 className="text-2xl font-bold text-earth-dark mb-6 text-center">
+                    <div className="bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl relative">
+                        <button
+                            onClick={() => setSelectedMethod(null)}
+                            className="absolute top-3 right-3 sm:top-4 sm:right-5 w-10 h-10 flex items-center justify-center bg-[#8B6F47] text-white rounded-xl text-2xl hover:bg-[#4A3F35] transition-all shadow-lg"
+                        >
+                            ×
+                        </button>
+                        <h3 className="text-xl sm:text-2xl font-bold text-earth-dark mb-6 text-center">
                             Pago con PayPal
                         </h3>
 
@@ -568,14 +573,7 @@ function CheckoutForm({ pkg, onClose }: { pkg: Package; onClose: () => void }) {
                             </PayPalScriptProvider>
                         </div>
 
-                        <button
-                            onClick={() => setSelectedMethod(null)}
-                            className="mt-6 text-white-600 underline w-full text-center block"
-                        >
-                            Volver a métodos de pago
-                        </button>
-
-                        {formError && <p className="mt-4 text-red-600 text-center">{formError}</p>}
+                        {formError && <p className="mt-4 text-red-600 text-center text-sm">{formError}</p>}
                     </div>
                 </div>
             )}
