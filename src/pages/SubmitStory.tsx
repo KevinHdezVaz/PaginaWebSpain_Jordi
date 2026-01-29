@@ -72,7 +72,7 @@ export default function SubmitStory({ onSuccess }: SubmitStoryProps) {
 
             // Cerrar modal automáticamente después de 3 segundos (o inmediatamente si prefieres)
             if (onSuccess) {
-                setTimeout(onSuccess, 3000); // da tiempo a leer el mensaje de éxito
+                setTimeout(onSuccess, 7000); // da tiempo a leer el mensaje de éxito
             }
         } catch (err: any) {
             setError(err.message || 'Ocurrió un error inesperado. Intenta de nuevo más tarde.');

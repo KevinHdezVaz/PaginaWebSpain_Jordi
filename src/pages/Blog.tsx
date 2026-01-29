@@ -54,6 +54,20 @@ export default function Blog() {
     const featuredPost = posts[0];
     const recentPosts = posts.slice(1, 4);
 
+    // Función para formatear fechas
+    const formatDate = (dateStr: string) => {
+        if (!dateStr) return "";
+        try {
+            return new Date(dateStr).toLocaleDateString("es-ES", {
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+            });
+        } catch (e) {
+            return dateStr;
+        }
+    };
+
     if (loading) {
         return (
             <div className="min-h-screen bg-earth-light flex items-center justify-center">
@@ -87,7 +101,7 @@ export default function Blog() {
             {/* Hero */}
             <div className="relative">
                 <div
-                    className="h-[60vh] md:h-[80vh] bg-cover bg-center relative"
+                    className="h-[40vh] md:h-[50vh] bg-cover bg-center relative"
                     style={{
                         backgroundImage:
                             "url('https://images.unsplash.com/photo-1502086223501-08a3f19f3e62?ixlib=rb-4.0.3&auto=format&fit=crop&w=2400&q=80')",
@@ -110,7 +124,7 @@ export default function Blog() {
                 </div>
             </div>
 
-            <div className="max-w-7xl mx-auto px-6 py-16 lg:py-24">
+            <div className="max-w-7xl mx-auto px-6 py-8 lg:py-12">
                 <div className="grid lg:grid-cols-3 gap-12">
                     {/* Contenido principal */}
                     <div className="lg:col-span-2">
@@ -135,13 +149,13 @@ export default function Blog() {
                             <>
                                 {featuredPost && selectedCategory === "Todas" && (
                                     <div className="mb-16">
-                                        <BlogCard post={featuredPost} featured={true} />
+                                        <BlogCard post={{ ...featuredPost, date: formatDate(featuredPost.date) }} featured={true} />
                                     </div>
                                 )}
 
                                 <div className="grid md:grid-cols-2 gap-10 lg:gap-12">
                                     {(selectedCategory === "Todas" ? posts.slice(1) : filteredPosts).map((post) => (
-                                        <BlogCard key={post.id} post={post} />
+                                        <BlogCard key={post.id} post={{ ...post, date: formatDate(post.date) }} />
                                     ))}
                                 </div>
                             </>
@@ -178,7 +192,7 @@ export default function Blog() {
                                             <p className="font-medium group-hover:text-earth-green transition line-clamp-2">
                                                 {post.title}
                                             </p>
-                                            <p className="text-sm text-gray-500">{post.date}</p>
+                                            <p className="text-sm text-gray-500">{formatDate(post.date)}</p>
                                         </div>
                                     ))}
                                 </div>
