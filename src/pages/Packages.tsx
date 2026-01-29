@@ -4,7 +4,7 @@ import { Elements, CardElement, useStripe, useElements } from "@stripe/react-str
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import PackageCard from "../components/sections/PackageCard";
 
-// ¡Reemplaza con tus claves reales!
+// Claves (¡cámbialas por las reales!)
 const stripePromise = loadStripe("pk_test_tu_clave_publica_stripe_aquí");
 const PAYPAL_CLIENT_ID = "tu_client_id_paypal_sandbox_o_live_aquí";
 
@@ -13,18 +13,23 @@ type Package = {
     name: string;
     days: number;
     nights: number;
-    price: string;
+    base_price: number;
+    extra_day_price?: number;
     image: string | null;
     description: string | null;
     highlights: string[];
     pdf?: string | null;
-    isPopular?: boolean;
+    bike_basic_pdf?: string | null;
+    bike_premium_pdf?: string | null;
+    helmet_pdf?: string | null;
+    isPopular?: boolean | number | string;
+    is_popular?: boolean | number | string;
 };
 
 const SUPPLEMENTS = {
-    bikeRental: 300,
+    bikeBasic: 250,
+    bikePremium: 450,
     helmet: 20,
-    pedals: 15,
 };
 
 function CheckoutForm({ pkg, onClose }: { pkg: Package; onClose: () => void }) {
@@ -32,28 +37,33 @@ function CheckoutForm({ pkg, onClose }: { pkg: Package; onClose: () => void }) {
     const elements = useElements();
 
     const [people, setPeople] = useState(4);
+    const [extraNights, setExtraNights] = useState(0);
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
-    const [bikeRental, setBikeRental] = useState(false);
+    const [bikeRental, setBikeRental] = useState<"none" | "basic" | "premium">("none");
     const [bikeSize, setBikeSize] = useState("");
     const [helmet, setHelmet] = useState(false);
-    const [pedals, setPedals] = useState(false);
+    const [helmetSize, setHelmetSize] = useState("");
     const [experienceLevel, setExperienceLevel] = useState("");
     const [healthConditions, setHealthConditions] = useState("");
     const [allergies, setAllergies] = useState("");
     const [formError, setFormError] = useState<string | null>(null);
     const [paymentLoading, setPaymentLoading] = useState(false);
 
-    // Estados para el flujo de pago
     const [showMethodModal, setShowMethodModal] = useState(false);
     const [selectedMethod, setSelectedMethod] = useState<"stripe" | "paypal" | null>(null);
 
     const calculateTotal = () => {
-        const base = parseFloat(pkg.price.replace(/[^0-9.]/g, "")) || 0;
+        const base = pkg.base_price || 0;
+        const extraDay = pkg.extra_day_price || 0;
+
         let total = base * people;
-        if (bikeRental) total += SUPPLEMENTS.bikeRental * people;
+        total += extraDay * extraNights * people;
+
+        if (bikeRental === "basic") total += SUPPLEMENTS.bikeBasic * people;
+        if (bikeRental === "premium") total += SUPPLEMENTS.bikePremium * people;
         if (helmet) total += SUPPLEMENTS.helmet * people;
-        if (pedals) total += SUPPLEMENTS.pedals * people;
+
         return total;
     };
 
@@ -63,7 +73,8 @@ function CheckoutForm({ pkg, onClose }: { pkg: Package; onClose: () => void }) {
     const validateForm = () => {
         if (people < 2) return false;
         if (!startDate || !endDate) return false;
-        if (bikeRental && !bikeSize) return false;
+        if (bikeRental !== "none" && !bikeSize) return false;
+        if (helmet && !helmetSize) return false;
         if (!experienceLevel) return false;
         return true;
     };
@@ -71,7 +82,7 @@ function CheckoutForm({ pkg, onClose }: { pkg: Package; onClose: () => void }) {
     const isFormValid = validateForm();
 
     const handleProceedToPay = () => {
-        if (!validateForm()) {
+        if (!isFormValid) {
             setFormError("Por favor, completa todos los campos obligatorios marcados con *");
             return;
         }
@@ -79,13 +90,12 @@ function CheckoutForm({ pkg, onClose }: { pkg: Package; onClose: () => void }) {
         setShowMethodModal(true);
     };
 
-    // ── Stripe Payment ────────────────────────────────────────────────
+    // Stripe Payment
     const handleStripePayment = async () => {
         if (!stripe || !elements) {
             setFormError("Stripe no está cargado correctamente");
             return;
         }
-
         setPaymentLoading(true);
         try {
             const res = await fetch("/api/reservations/create-payment", {
@@ -97,9 +107,7 @@ function CheckoutForm({ pkg, onClose }: { pkg: Package; onClose: () => void }) {
                     metadata: { packageId: pkg.id, people, method: "stripe" },
                 }),
             });
-
             if (!res.ok) throw new Error("No se pudo crear el PaymentIntent");
-
             const { clientSecret } = await res.json();
 
             const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
@@ -123,7 +131,7 @@ function CheckoutForm({ pkg, onClose }: { pkg: Package; onClose: () => void }) {
         }
     };
 
-    // ── PayPal Approval ───────────────────────────────────────────────
+    // PayPal Approval
     const handlePayPalApprove = async (data: any) => {
         try {
             const res = await fetch("/api/reservations/capture-paypal", {
@@ -136,18 +144,17 @@ function CheckoutForm({ pkg, onClose }: { pkg: Package; onClose: () => void }) {
                     amount: deposit,
                     start_date: startDate,
                     end_date: endDate,
+                    extra_nights: extraNights,
                     bike_rental: bikeRental,
                     bike_size: bikeSize,
                     helmet,
-                    pedals,
+                    helmet_size: helmetSize,
                     experience_level: experienceLevel,
                     health_conditions: healthConditions,
                     allergies,
                 }),
             });
-
             const result = await res.json();
-
             if (result.success) {
                 await saveReservation("partial", deposit, "paypal");
                 alert("¡Pago del depósito exitoso con PayPal! Te enviaremos confirmación y contrato.");
@@ -169,10 +176,11 @@ function CheckoutForm({ pkg, onClose }: { pkg: Package; onClose: () => void }) {
                 people,
                 start_date: startDate,
                 end_date: endDate,
+                extra_nights: extraNights,
                 bike_rental: bikeRental,
                 bike_size: bikeSize,
                 helmet,
-                pedals,
+                helmet_size: helmetSize,
                 experience_level: experienceLevel,
                 health_conditions: healthConditions,
                 allergies,
@@ -185,12 +193,12 @@ function CheckoutForm({ pkg, onClose }: { pkg: Package; onClose: () => void }) {
 
     return (
         <>
-            {/* Modal principal de configuración de reserva */}
+            {/* Modal principal de configuración */}
             <div className="bg-white rounded-3xl shadow-2xl p-8 md:p-10 w-full max-w-4xl max-h-[90vh] overflow-y-auto border-2 border-earth-brown/20 animate-fade-in relative">
                 <div className="flex justify-between items-start mb-6">
                     <div>
                         <h3 className="text-2xl md:text-3xl font-black text-earth-dark mb-2">
-                            Configura tu reserva
+                            Configura tu paquete
                         </h3>
                         {pkg.pdf && (
                             <a
@@ -202,21 +210,36 @@ function CheckoutForm({ pkg, onClose }: { pkg: Package; onClose: () => void }) {
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                 </svg>
-                                Descargar Detalles (PDF)
+                                Descargar Detalles del Paquete (PDF)
                             </a>
                         )}
                     </div>
-                    <button
-                        onClick={onClose}
-                        className="text-4xl text-white-500 hover:text-earth-white transition-colors leading-none"
-                    >
+                    <button onClick={onClose} className="text-4xl text-white hover:text-gray-700">
                         ×
                     </button>
                 </div>
 
-                <p className="text-gray-700 mb-8 text-center text-lg">
-                    Personaliza <span className="font-bold text-earth-green">{pkg.name}</span> y ve el precio al instante
-                </p>
+                <div className="mb-8">
+                    <ul className="grid grid-cols-2 md:grid-cols-3 gap-3 text-left max-w-4xl mx-auto">
+                        {pkg.highlights
+                            .flatMap((item) =>
+                                item
+                                    .replace(/\\r\\n/g, '\n')
+                                    .replace(/\\r/g, '\n')
+                                    .split('\n')
+                                    .map((line) => line.trim())
+                                    .filter((line) => line !== "")
+                            )
+                            .map((line, index) => (
+                                <li key={index} className="flex items-center text-gray-700 bg-earth-beige/20 px-3 py-2 rounded-lg">
+                                    <svg className="w-4 h-4 text-earth-green mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                    </svg>
+                                    <span className="text-sm font-medium">{line}</span>
+                                </li>
+                            ))}
+                    </ul>
+                </div>
 
                 {formError && (
                     <div className="bg-red-50 border border-red-200 text-red-700 px-5 py-3 rounded-xl mb-6 text-center">
@@ -225,7 +248,7 @@ function CheckoutForm({ pkg, onClose }: { pkg: Package; onClose: () => void }) {
                 )}
 
                 <div className="grid md:grid-cols-2 gap-10">
-                    {/* Lado izquierdo: Opciones y formulario */}
+                    {/* Lado izquierdo: Opciones */}
                     <div className="space-y-6">
                         {/* Número de personas */}
                         <div>
@@ -243,6 +266,26 @@ function CheckoutForm({ pkg, onClose }: { pkg: Package; onClose: () => void }) {
                                     </option>
                                 ))}
                             </select>
+                        </div>
+
+                        {/* Días extra */}
+                        <div>
+                            <label className="block font-bold text-earth-dark mb-2">
+                                Días adicionales (opcional)
+                            </label>
+                            <input
+                                type="number"
+                                min="0"
+                                value={extraNights === 0 ? "" : extraNights}
+                                onChange={(e) => setExtraNights(e.target.value === "" ? 0 : Number(e.target.value))}
+                                className="w-full px-4 py-3 rounded-xl border-2 border-earth-brown/20 focus:border-earth-green"
+                                placeholder="0"
+                            />
+                            {pkg.extra_day_price && (
+                                <small className="text-gray-600 block mt-1">
+                                    +{Number(pkg.extra_day_price).toFixed(2)} € / persona / día
+                                </small>
+                            )}
                         </div>
 
                         {/* Fechas */}
@@ -273,19 +316,55 @@ function CheckoutForm({ pkg, onClose }: { pkg: Package; onClose: () => void }) {
                             </div>
                         </div>
 
-                        {/* Suplementos */}
-                        <div className="space-y-4">
-                            <label className="flex items-center gap-3 font-bold text-earth-dark cursor-pointer">
-                                <input
-                                    type="checkbox"
-                                    checked={bikeRental}
-                                    onChange={(e) => setBikeRental(e.target.checked)}
-                                    className="w-5 h-5 text-earth-green rounded"
-                                />
-                                Alquiler bicicleta (+{SUPPLEMENTS.bikeRental}€/pers)
-                            </label>
-
-                            {bikeRental && (
+                        {/* Alquiler de bicicleta */}
+                        <div className="space-y-3">
+                            <label className="block font-bold text-earth-dark mb-2">Alquiler de bicicleta</label>
+                            <div className="flex flex-col gap-3">
+                                <label className="flex items-center justify-between cursor-pointer">
+                                    <div className="flex items-center gap-3">
+                                        <input
+                                            type="radio"
+                                            checked={bikeRental === "none"}
+                                            onChange={() => setBikeRental("none")}
+                                            className="w-5 h-5 text-earth-green"
+                                        />
+                                        <span>Sin alquiler</span>
+                                    </div>
+                                </label>
+                                <label className="flex items-center justify-between cursor-pointer">
+                                    <div className="flex items-center gap-3">
+                                        <input
+                                            type="radio"
+                                            checked={bikeRental === "basic"}
+                                            onChange={() => setBikeRental("basic")}
+                                            className="w-5 h-5 text-earth-green"
+                                        />
+                                        <span>Básica (+{SUPPLEMENTS.bikeBasic} €/pers.)</span>
+                                    </div>
+                                    {pkg.bike_basic_pdf && (
+                                        <a href={pkg.bike_basic_pdf} target="_blank" className="text-earth-green hover:underline text-sm">
+                                            Ver info
+                                        </a>
+                                    )}
+                                </label>
+                                <label className="flex items-center justify-between cursor-pointer">
+                                    <div className="flex items-center gap-3">
+                                        <input
+                                            type="radio"
+                                            checked={bikeRental === "premium"}
+                                            onChange={() => setBikeRental("premium")}
+                                            className="w-5 h-5 text-earth-green"
+                                        />
+                                        <span>Alta gama (+{SUPPLEMENTS.bikePremium} €/pers.)</span>
+                                    </div>
+                                    {pkg.bike_premium_pdf && (
+                                        <a href={pkg.bike_premium_pdf} target="_blank" className="text-earth-green hover:underline text-sm">
+                                            Ver info
+                                        </a>
+                                    )}
+                                </label>
+                            </div>
+                            {bikeRental !== "none" && (
                                 <select
                                     value={bikeSize}
                                     onChange={(e) => setBikeSize(e.target.value)}
@@ -299,7 +378,10 @@ function CheckoutForm({ pkg, onClose }: { pkg: Package; onClose: () => void }) {
                                     <option value="XL">XL</option>
                                 </select>
                             )}
+                        </div>
 
+                        {/* Casco */}
+                        <div className="space-y-3">
                             <label className="flex items-center gap-3 font-bold text-earth-dark cursor-pointer">
                                 <input
                                     type="checkbox"
@@ -307,18 +389,28 @@ function CheckoutForm({ pkg, onClose }: { pkg: Package; onClose: () => void }) {
                                     onChange={(e) => setHelmet(e.target.checked)}
                                     className="w-5 h-5 text-earth-green rounded"
                                 />
-                                Casco (+{SUPPLEMENTS.helmet}€/pers)
+                                Casco (+{SUPPLEMENTS.helmet} €/pers.)
                             </label>
-
-                            <label className="flex items-center gap-3 font-bold text-earth-dark cursor-pointer">
-                                <input
-                                    type="checkbox"
-                                    checked={pedals}
-                                    onChange={(e) => setPedals(e.target.checked)}
-                                    className="w-5 h-5 text-earth-green rounded"
-                                />
-                                Pedales (+{SUPPLEMENTS.pedals}€/pers)
-                            </label>
+                            {helmet && (
+                                <div className="flex items-center justify-between">
+                                    <select
+                                        value={helmetSize}
+                                        onChange={(e) => setHelmetSize(e.target.value)}
+                                        className="w-full px-4 py-3 rounded-xl border-2 border-earth-brown/20 focus:border-earth-green"
+                                    >
+                                        <option value="">Talla del casco *</option>
+                                        <option value="S">S</option>
+                                        <option value="M">M</option>
+                                        <option value="L">L</option>
+                                        <option value="XL">XL</option>
+                                    </select>
+                                    {pkg.helmet_pdf && (
+                                        <a href={pkg.helmet_pdf} target="_blank" className="text-earth-green hover:underline text-sm ml-3">
+                                            Ver info
+                                        </a>
+                                    )}
+                                </div>
+                            )}
                         </div>
 
                         {/* Nivel y comentarios */}
@@ -336,7 +428,6 @@ function CheckoutForm({ pkg, onClose }: { pkg: Package; onClose: () => void }) {
                                 <option value="intermedio">Intermedio</option>
                                 <option value="avanzado">Avanzado</option>
                             </select>
-
                             <textarea
                                 value={healthConditions}
                                 onChange={(e) => setHealthConditions(e.target.value)}
@@ -344,49 +435,130 @@ function CheckoutForm({ pkg, onClose }: { pkg: Package; onClose: () => void }) {
                                 className="w-full px-4 py-3 rounded-xl border-2 border-earth-brown/20 focus:border-earth-green h-20"
                             />
                         </div>
+
+                        {/* Política de Cancelación y Garantías */}
+                        <div className="pt-6 border-t border-earth-brown/10">
+                            <h4 className="flex items-center gap-2 font-bold text-earth-dark mb-4 text-lg">
+                                <svg className="w-5 h-5 text-earth-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                Política de Cancelación y Garantías
+                            </h4>
+
+                            <div className="bg-earth-beige/20 rounded-xl p-5 text-sm space-y-4">
+                                <div>
+                                    <p className="font-bold text-earth-dark mb-1 flex items-center gap-2">
+                                        <svg className="w-4 h-4 text-earth-brown" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                        </svg>
+                                        Contrato Digital Seguro
+                                    </p>
+                                    <p className="text-gray-600 pl-6 leading-relaxed">
+                                        Al confirmar, generaremos un contrato de viaje que firmaremos digitalmente para tu seguridad y respaldo legal.
+                                    </p>
+                                </div>
+
+                                <div className="space-y-2 pl-2 border-l-2 border-earth-green/30 ml-1">
+                                    <p className="font-bold text-earth-dark text-xs uppercase tracking-wide mb-2 pl-3">
+                                        Condiciones de Reembolso
+                                    </p>
+                                    <div className="flex justify-between items-center pl-3">
+                                        <span className="text-gray-700">+30 días antelación</span>
+                                        <span className="font-bold text-green-600 bg-green-100 px-2 py-0.5 rounded text-xs">100% Reembolso*</span>
+                                    </div>
+                                    <div className="flex justify-between items-center pl-3">
+                                        <span className="text-gray-700">15 - 30 días</span>
+                                        <span className="font-bold text-yellow-600 bg-yellow-100 px-2 py-0.5 rounded text-xs">50% Reembolso</span>
+                                    </div>
+                                    <div className="flex justify-between items-center pl-3">
+                                        <span className="text-gray-700 opacity-75 text-xs">-15 días</span>
+                                        <span className="font-bold text-red-600 bg-red-100 px-2 py-0.5 rounded text-xs">Sin reembolso</span>
+                                    </div>
+                                    <p className="text-[10px] text-gray-400 pl-3 mt-1 italic">
+                                        * Menos gastos de gestión
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
-                    {/* Lado derecho: Resumen + Botón pagar */}
-                    <div className="space-y-6">
-                        <div className="bg-earth-light/50 rounded-2xl p-6 border-2 border-earth-brown/10">
-                            <h4 className="text-xl font-black text-earth-dark mb-4">Resumen de cotización</h4>
-                            <div className="space-y-3 text-sm">
-                                <div className="flex justify-between">
-                                    <span>Paquete ({people} pers.)</span>
-                                    <span className="font-bold">{totalPrice.toFixed(2)} €</span>
-                                </div>
-                                {bikeRental && (
-                                    <div className="flex justify-between text-earth-green">
-                                        Alquiler bicis: +{(SUPPLEMENTS.bikeRental * people).toFixed(2)} €
+                    {/* Lado derecho: Resumen - MODO COTIZADOR LLAMATIVO */}
+                    <div className="space-y-6 sticky top-6 lg:top-10 z-20 
+                lg:scale-[1.04] lg:-mr-4 transition-transform duration-300">
+
+                        {/* Tarjeta del cotizador - muy llamativa */}
+                        <div className="bg-gradient-to-br from-emerald-600 via-teal-600 to-cyan-600 
+                  text-white rounded-3xl p-8 shadow-2xl ring-4 ring-emerald-400/40 ring-offset-2 ring-offset-white/10
+                  relative overflow-hidden animate-pulse-slow">
+
+                            {/* Efecto de brillo que se mueve */}
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent 
+                    -translate-x-full animate-shine pointer-events-none"></div>
+
+                            {/* Badge superior flotante */}
+                            <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-10">
+
+                            </div>
+
+                            <div className="relative pt-6">
+                                <h4 className="text-3xl md:text-4xl text-earth-brown text-center mb-6 drop-shadow-lg">
+                                    Cotización
+                                </h4>
+
+                                <div className="space-y-4 text-base md:text-lg">
+                                    <div className="flex justify-between items-center font-semibold">
+                                        <span>Paquete base ({people} personas)</span>
+                                        <span className="font-black">{(pkg.base_price * people).toFixed(2)} €</span>
                                     </div>
-                                )}
-                                {helmet && (
-                                    <div className="flex justify-between text-earth-green">
-                                        Cascos: +{(SUPPLEMENTS.helmet * people).toFixed(2)} €
-                                    </div>
-                                )}
-                                {pedals && (
-                                    <div className="flex justify-between text-earth-green">
-                                        Pedales: +{(SUPPLEMENTS.pedals * people).toFixed(2)} €
-                                    </div>
-                                )}
-                                <div className="border-t border-earth-brown/20 pt-3 mt-3">
-                                    <div className="flex justify-between text-xl font-black text-earth-dark">
-                                        <span>Total</span>
-                                        <span>{totalPrice.toFixed(2)} €</span>
-                                    </div>
-                                    <div className="mt-4 p-4 bg-earth-green/10 rounded-xl text-center">
-                                        <p className="text-lg font-bold text-earth-green">
-                                            Pago Depósito (20%): {deposit.toFixed(2)} €
-                                        </p>
-                                        <p className="text-xs text-earth-green/80">
-                                            El resto se paga 30 días antes del viaje
-                                        </p>
+
+                                    {extraNights > 0 && (
+                                        <div className="flex justify-between text-cyan-100">
+                                            <span>Noches extra ({extraNights} × {people})</span>
+                                            <span className="font-bold">+{(pkg.extra_day_price || 0) * extraNights * people} €</span>
+                                        </div>
+                                    )}
+
+                                    {bikeRental === "basic" && (
+                                        <div className="flex justify-between text-cyan-100">
+                                            <span>Alquiler bici básica</span>
+                                            <span className="font-bold">+{SUPPLEMENTS.bikeBasic * people} €</span>
+                                        </div>
+                                    )}
+
+                                    {bikeRental === "premium" && (
+                                        <div className="flex justify-between text-cyan-100">
+                                            <span>Alquiler bici premium</span>
+                                            <span className="font-bold">+{SUPPLEMENTS.bikePremium * people} €</span>
+                                        </div>
+                                    )}
+
+                                    {helmet && (
+                                        <div className="flex justify-between text-cyan-100">
+                                            <span>Cascos</span>
+                                            <span className="font-bold">+{SUPPLEMENTS.helmet * people} €</span>
+                                        </div>
+                                    )}
+
+                                    <div className="border-t-2 border-white/30 pt-5 mt-5">
+                                        <div className="flex justify-between items-baseline text-3xl md:text-4xl font-black">
+                                            <span className="text-white">TOTAL</span>
+                                            <span className="text-yellow-300">{totalPrice.toFixed(2)} €</span>
+                                        </div>
+
+                                        <div className="mt-6 p-6 bg-black/30 backdrop-blur-sm rounded-2xl text-center border border-white/20 shadow-inner">
+                                            <p className="text-2xl md:text-3xl  text-yellow-300 mb-2">
+                                                Depósito ahora (20%): {deposit.toFixed(2)} €
+                                            </p>
+                                            <p className="text-base text-white/90">
+                                                Resto a pagar 30 días antes del viaje
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
+                        {/* Botón ORIGINAL tal como lo tenías */}
                         <button
                             disabled={!isFormValid || paymentLoading}
                             onClick={handleProceedToPay}
@@ -395,6 +567,7 @@ function CheckoutForm({ pkg, onClose }: { pkg: Package; onClose: () => void }) {
                             {paymentLoading ? "Procesando..." : `Pagar Depósito: ${deposit.toFixed(2)} €`}
                         </button>
 
+                        {/* Mensaje de error ORIGINAL tal como lo tenías */}
                         {!isFormValid && (
                             <p className="text-red-500 text-center text-sm font-bold">
                                 * Completa los campos obligatorios para continuar
@@ -404,7 +577,7 @@ function CheckoutForm({ pkg, onClose }: { pkg: Package; onClose: () => void }) {
                 </div>
             </div>
 
-            {/* ── Modal Selección de Método de Pago ──────────────────────────────── */}
+            {/* Modal de selección de método de pago */}
             {showMethodModal && (
                 <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/75 backdrop-blur-md px-4 transition-all duration-500">
                     <div className="bg-white rounded-3xl md:rounded-[2.5rem] p-6 sm:p-10 md:p-14 max-w-2xl w-full shadow-[0_20px_50px_rgba(0,0,0,0.3)] relative animate-in fade-in zoom-in duration-300">
@@ -414,7 +587,6 @@ function CheckoutForm({ pkg, onClose }: { pkg: Package; onClose: () => void }) {
                         >
                             ×
                         </button>
-
                         <div className="text-center mb-6 sm:mb-12 pt-4 sm:pt-0">
                             <h3 className="text-2xl sm:text-3xl md:text-4xl font-black text-earth-dark mb-3 tracking-tight px-2">
                                 ¿Cómo quieres pagar?
@@ -423,7 +595,6 @@ function CheckoutForm({ pkg, onClose }: { pkg: Package; onClose: () => void }) {
                                 Selecciona tu método de pago para confirmar
                             </p>
                         </div>
-
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-8">
                             <button
                                 onClick={() => {
@@ -438,8 +609,9 @@ function CheckoutForm({ pkg, onClose }: { pkg: Package; onClose: () => void }) {
                                     </svg>
                                 </div>
                                 <span className="font-black text-lg sm:text-2xl text-earth-dark mb-1">Tarjeta</span>
-                                <span className="text-[10px] sm:text-sm text-white-500 leading-relaxed">
-                                    Seguro con crédito/débito</span>
+                                <span className="text-[10px] sm:text-sm text-gray-500 leading-relaxed">
+                                    Seguro con crédito/débito
+                                </span>
                             </button>
 
                             <button
@@ -451,11 +623,11 @@ function CheckoutForm({ pkg, onClose }: { pkg: Package; onClose: () => void }) {
                             >
                                 <div className="w-10 h-10 sm:w-20 sm:h-20 mb-2 sm:mb-6 rounded-xl bg-earth-brown/5 flex items-center justify-center group-hover:bg-earth-green/20 transition-colors duration-300">
                                     <svg className="w-6 h-6 sm:w-12 sm:h-12" viewBox="0 0 24 24" fill="currentColor">
-                                        <path d="M20.067 8.178c-.652-3.132-2.903-4.212-5.717-4.212H8.354A1.05 1.05 0 0 0 7.3 5.016L4.544 22.14c-.066.425.263.804.693.804H9.79l.564-3.535l.08-.501h3.351c3.553 0 6.345-1.444 7.159-5.594c.333-1.693.184-3.2-.877-5.136zm-2.83 5.25c-.538 2.756-2.583 2.756-4.665 2.756H10.19l.794-4.96h2.382c2.146 0 2.972.103 3.394 1.1c.264.63.153 1.104.477-1.104z" stroke="currentColor" strokeWidth="0.5" className="text-earth-brown group-hover:text-blue-600 transition-colors" />
+                                        <path d="M20.067 8.178c-.652-3.132-2.903-4.212-5.717-4.212H8.354A1.05 1.05 0 0 0 7.3 5.016L4.544 22.14c-.066.425.263.804.693.804H9.79l.564-3.535l.08-.501h3.351c3.553 0 6.345-1.444 7.159-5.594c.333-1.693.184-3.2-.877-5.136zm-2.83 5.25c-.538 2.756-2.583 2.756-4.665 2.756H10.19l.794-4.96h2.382c2.146 0 2.972.103 3.394 1.1c.264.63.153 1.104.477-1.104z" />
                                     </svg>
                                 </div>
                                 <span className="font-black text-lg sm:text-2xl text-earth-dark mb-1">PayPal</span>
-                                <span className="text-[10px] sm:text-sm text-white-500 leading-relaxed px-1">
+                                <span className="text-[10px] sm:text-sm text-gray-500 leading-relaxed px-1">
                                     Paga con tu cuenta
                                 </span>
                             </button>
@@ -471,7 +643,7 @@ function CheckoutForm({ pkg, onClose }: { pkg: Package; onClose: () => void }) {
                 </div>
             )}
 
-            {/* ── Modal Stripe (tarjeta) ──────────────────────────────────────── */}
+            {/* Modal Stripe */}
             {selectedMethod === "stripe" && (
                 <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/60 px-4">
                     <div className="bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl relative">
@@ -497,7 +669,6 @@ function CheckoutForm({ pkg, onClose }: { pkg: Package; onClose: () => void }) {
                                 }}
                             />
                         </div>
-
                         <button
                             onClick={handleStripePayment}
                             disabled={paymentLoading}
@@ -505,13 +676,12 @@ function CheckoutForm({ pkg, onClose }: { pkg: Package; onClose: () => void }) {
                         >
                             {paymentLoading ? "Procesando..." : `Pagar ${deposit.toFixed(2)} € ahora`}
                         </button>
-
                         {formError && <p className="mt-4 text-red-600 text-center text-sm">{formError}</p>}
                     </div>
                 </div>
             )}
 
-            {/* ── Modal PayPal ────────────────────────────────────────────────── */}
+            {/* Modal PayPal */}
             {selectedMethod === "paypal" && (
                 <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/60 px-4">
                     <div className="bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl relative">
@@ -524,7 +694,6 @@ function CheckoutForm({ pkg, onClose }: { pkg: Package; onClose: () => void }) {
                         <h3 className="text-xl sm:text-2xl font-bold text-earth-dark mb-6 text-center">
                             Pago con PayPal
                         </h3>
-
                         <div className="min-h-[200px] flex items-center justify-center">
                             <PayPalScriptProvider
                                 options={{
@@ -533,7 +702,6 @@ function CheckoutForm({ pkg, onClose }: { pkg: Package; onClose: () => void }) {
                                     intent: "capture",
                                 }}
                             >
-
                                 <PayPalButtons
                                     style={{
                                         layout: "vertical",
@@ -544,7 +712,7 @@ function CheckoutForm({ pkg, onClose }: { pkg: Package; onClose: () => void }) {
                                     }}
                                     createOrder={(data, actions) => {
                                         return actions.order.create({
-                                            intent: "CAPTURE",  // Obligatorio para que TypeScript no se queje
+                                            intent: "CAPTURE",
                                             purchase_units: [
                                                 {
                                                     amount: {
@@ -552,14 +720,11 @@ function CheckoutForm({ pkg, onClose }: { pkg: Package; onClose: () => void }) {
                                                         currency_code: "EUR",
                                                     },
                                                     description: `Depósito reserva ${pkg.name} - ${people} personas`,
-                                                    // Opcional pero útil: referencia interna
-                                                    reference_id: `reserva-${pkg.id}-${Date.now()}`,
                                                 },
                                             ],
-                                            // Opcional: application_context para mejor UX
                                             application_context: {
-                                                shipping_preference: "NO_SHIPPING", // ya que es un servicio, no producto físico
-                                                brand_name: "Tu Empresa Gravel Tours",
+                                                shipping_preference: "NO_SHIPPING",
+                                                brand_name: "Gravel Empordà Tours",
                                                 locale: "es_ES",
                                             },
                                         });
@@ -572,7 +737,6 @@ function CheckoutForm({ pkg, onClose }: { pkg: Package; onClose: () => void }) {
                                 />
                             </PayPalScriptProvider>
                         </div>
-
                         {formError && <p className="mt-4 text-red-600 text-center text-sm">{formError}</p>}
                     </div>
                 </div>
@@ -601,7 +765,6 @@ export default function Packages() {
                 setLoading(false);
             }
         };
-
         fetchPackages();
     }, []);
 
@@ -624,8 +787,7 @@ export default function Packages() {
             <div
                 className="relative bg-cover bg-center text-white py-32 md:py-48"
                 style={{
-                    backgroundImage:
-                        "url('https://cdn.biketours.com/assets/files/4268/catalonia_emporda_spain_gravel_bike_tour_to3.jpg.webp')",
+                    backgroundImage: "url('https://cdn.biketours.com/assets/files/4268/catalonia_emporda_spain_gravel_bike_tour_to3.jpg.webp')",
                 }}
             >
                 <div className="absolute inset-0 bg-earth-dark/75"></div>

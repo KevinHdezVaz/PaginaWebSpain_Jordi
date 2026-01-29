@@ -1,6 +1,32 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 
+type GalleryItem = {
+    type: 'image' | 'video';
+    url: string;
+    thumbnail?: string | null;
+};
+
+type Highlight = {
+    icon: string;
+    title: string;
+    desc: string;
+};
+
+type Tip = {
+    icon: string;
+    title: string;
+    content: string;
+    bg?: string;
+    border?: string;
+};
+
+type QuickInfo = {
+    icon: string;
+    label: string;
+    value: string;
+};
+
 type Route = {
     id: number;
     name: string;
@@ -10,6 +36,12 @@ type Route = {
     duration: string | null;
     difficulty: "Fácil" | "Media" | "Difícil";
     description: string | null;
+    tagline?: string | null;
+    highlights?: Highlight[];
+    tips?: Tip[];
+    quick_info?: QuickInfo[];
+    download_pack_features?: string[];
+    gallery?: GalleryItem[];
 };
 
 export default function RouteDetail() {
@@ -17,58 +49,60 @@ export default function RouteDetail() {
     const [route, setRoute] = useState<Route | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [activeTab, setActiveTab] = useState<'description' | 'highlights' | 'tips'>('description');
+    const [activeTab, setActiveTab] = useState<'description' | 'highlights' | 'tips' | 'gallery'>('description');
     const [imageLoaded, setImageLoaded] = useState(false);
+    const [selectedMedia, setSelectedMedia] = useState<string | null>(null);
+    const [brokenImages, setBrokenImages] = useState<Set<number>>(new Set());
 
     useEffect(() => {
         const fetchRoute = async () => {
             try {
-                const response = await fetch("https://spainweb.picklebracket.pro/api/routes");
+                const response = await fetch(`https://spainweb.picklebracket.pro/api/routes/${id}`);
                 if (!response.ok) {
-                    throw new Error("Error al cargar la ruta");
+                    throw new Error(`Error ${response.status}: ${response.statusText}`);
                 }
-                const data = await response.json();
-                const routesData = Array.isArray(data) ? data : data.data;
-                if (!routesData) {
-                    throw new Error("Formato de datos incorrecto");
+                const routeData = await response.json();
+                if (!routeData || !routeData.id) {
+                    throw new Error("Ruta no encontrada o sin ID");
                 }
-                const foundRoute = routesData.find((r: any) => r.id === parseInt(id!));
-                if (!foundRoute) {
-                    setError("Ruta no encontrada");
-                    setLoading(false);
-                    return;
-                }
-                setRoute(foundRoute);
+                setRoute(routeData);
                 setLoading(false);
             } catch (err) {
-                console.error(err);
+                console.error("Error completo:", err);
                 setError("No se pudo cargar la información de la ruta");
                 setLoading(false);
             }
         };
-        fetchRoute();
+
+        if (id) {
+            fetchRoute();
+        } else {
+            console.error("No hay ID en la URL");
+        }
     }, [id]);
 
-    const difficultyConfig = route ? {
-        Fácil: {
-            bg: "bg-earth-green",
-            text: "text-[rgb(139,111,71)]",
-            icon: "🟢",
-            description: "Apta para principiantes"
-        },
-        Media: {
-            bg: "bg-earth-brown",
-            text: "text-[rgb(139,111,71)]",
-            icon: "🟡",
-            description: "Requiere experiencia moderada"
-        },
-        Difícil: {
-            bg: "bg-red-700",
-            text: "text-white",
-            icon: "🔴",
-            description: "Solo para ciclistas experimentados"
-        }
-    }[route.difficulty] : { bg: "", text: "", icon: "", description: "" };
+    const difficultyConfig = route
+        ? {
+            Fácil: {
+                bg: "bg-earth-green",
+                text: "text-[rgb(139,111,71)]",
+                icon: "🟢",
+                description: "Apta para principiantes",
+            },
+            Media: {
+                bg: "bg-earth-brown",
+                text: "text-[rgb(139,111,71)]",
+                icon: "🟡",
+                description: "Requiere experiencia moderada",
+            },
+            Difícil: {
+                bg: "bg-red-700",
+                text: "text-white",
+                icon: "🔴",
+                description: "Solo para ciclistas experimentados",
+            },
+        }[route.difficulty]
+        : { bg: "", text: "", icon: "", description: "" };
 
     if (loading) {
         return (
@@ -117,6 +151,7 @@ export default function RouteDetail() {
                     />
                     <div className="absolute inset-0 bg-gradient-to-b from-earth-dark/70 via-earth-dark/50 to-earth-dark/30"></div>
                 </div>
+
                 {/* Breadcrumb */}
                 <div className="absolute top-6 left-6 z-20">
                     <Link
@@ -129,6 +164,7 @@ export default function RouteDetail() {
                         Volver
                     </Link>
                 </div>
+
                 {/* Hero Content */}
                 <div className="absolute inset-0 flex flex-col items-center justify-center z-10 px-6 text-center">
                     <div className="max-w-5xl">
@@ -141,17 +177,21 @@ export default function RouteDetail() {
                                 {difficultyConfig.description}
                             </span>
                         </div>
-                        <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-white mb-6 drop-shadow-2xl leading-tight">
+
+                        <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-white mb-8 drop-shadow-2xl leading-tight bg-white/10 backdrop-blur-md inline-block px-8 py-4 rounded-3xl border border-white/10">
                             {route.name}
                         </h1>
-                        <p className="text-xl md:text-2xl text-white/90 font-medium max-w-3xl mx-auto">
-                            Una experiencia única en gravel por el corazón del Empordà
-                        </p>
+
+                        <div className="mt-4">
+                            <p className="text-xl md:text-2xl text-white/90 font-medium max-w-4xl mx-auto bg-white/10 backdrop-blur-md inline-block px-6 py-3 rounded-2xl border border-white/10 shadow-xl">
+                                {route.tagline || "Una experiencia única en gravel por el corazón del Empordà"}
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            {/* Main Content - SIN borde exterior en el card grande */}
+            {/* Main Content */}
             <div className="max-w-7xl mx-auto px-6 py-20">
                 <div className="bg-white rounded-3xl shadow-2xl overflow-hidden">
                     {/* Tabs */}
@@ -160,7 +200,8 @@ export default function RouteDetail() {
                             {[
                                 { id: 'description', label: 'Descripción', icon: '📋' },
                                 { id: 'highlights', label: 'Highlights', icon: '⭐' },
-                                { id: 'tips', label: 'Consejos', icon: '💡' }
+                                { id: 'gallery', label: 'Galería', icon: '📸' },
+                                { id: 'tips', label: 'Consejos', icon: '💡' },
                             ].map((tab) => (
                                 <button
                                     key={tab.id}
@@ -191,30 +232,55 @@ export default function RouteDetail() {
                                             </h2>
                                             <div className="bg-earth-beige/20 rounded-3xl p-10 border border-earth-beige/30">
                                                 <p className="text-lg leading-relaxed text-gray-800 whitespace-pre-line">
-                                                    {route.description || "Esta ruta ofrece una experiencia inmersiva en el corazón del Empordà, combinando caminos de gravel con paisajes naturales impresionantes. Diseñada por expertos en cicloturismo, garantiza un equilibrio perfecto entre desafío físico y disfrute escénico."}
+                                                    {route.description || "No hay descripción disponible."}
                                                 </p>
                                             </div>
                                         </div>
-                                        <div className="grid md:grid-cols-2 gap-8">
-                                            <div className="bg-earth-green/10 rounded-2xl p-8 border border-earth-green/20">
-                                                <h3 className="text-2xl font-black text-earth-dark mb-4 flex items-center gap-3">
-                                                    <span className="text-4xl">🎯</span> Nivel recomendado
-                                                </h3>
-                                                <p className="text-gray-700">
-                                                    Diseñada para ciclistas con nivel {route.difficulty.toLowerCase()}.
-                                                    {route.difficulty === 'Fácil' && ' Perfecta para iniciarse en el gravel.'}
-                                                    {route.difficulty === 'Media' && ' Requiere cierta experiencia previa.'}
-                                                    {route.difficulty === 'Difícil' && ' Solo para ciclistas experimentados.'}
+
+                                        {/* Datos clave de la ruta */}
+                                        <div className="grid md:grid-cols-3 gap-6">
+                                            <div className="bg-earth-brown/5 rounded-2xl p-6 border border-earth-brown/20 shadow-sm hover:shadow-md transition-shadow">
+                                                <div className="flex items-center gap-3 mb-3">
+                                                    <span className="text-4xl">📏</span>
+                                                    <h4 className="text-xl font-bold text-earth-dark">Distancia</h4>
+                                                </div>
+                                                <p className="text-2xl font-black text-earth-brown">
+                                                    {route.distance ? `${route.distance} km` : "—"}
                                                 </p>
                                             </div>
-                                            <div className="bg-earth-brown/10 rounded-2xl p-8 border border-earth-brown/20">
-                                                <h3 className="text-2xl font-black text-earth-dark mb-4 flex items-center gap-3">
-                                                    <span className="text-4xl">🌍</span> Zona geográfica
-                                                </h3>
-                                                <p className="text-gray-700">
-                                                    Región del Empordà, Catalunya. Superficie mixta con predominio de caminos de tierra y gravel seleccionados.
+
+                                            <div className="bg-earth-brown/5 rounded-2xl p-6 border border-earth-brown/20 shadow-sm hover:shadow-md transition-shadow">
+                                                <div className="flex items-center gap-3 mb-3">
+                                                    <span className="text-4xl">📈</span>
+                                                    <h4 className="text-xl font-bold text-earth-dark">Desnivel</h4>
+                                                </div>
+                                                <p className="text-2xl font-black text-earth-brown">
+                                                    {route.elevation ? `${route.elevation} m` : "—"}
                                                 </p>
                                             </div>
+
+                                            <div className="bg-earth-brown/5 rounded-2xl p-6 border border-earth-brown/20 shadow-sm hover:shadow-md transition-shadow">
+                                                <div className="flex items-center gap-3 mb-3">
+                                                    <span className="text-4xl">⏱️</span>
+                                                    <h4 className="text-xl font-bold text-earth-dark">Duración</h4>
+                                                </div>
+                                                <p className="text-2xl font-black text-earth-brown">
+                                                    {route.duration || "—"}
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        {/* Nivel recomendado */}
+                                        <div className="bg-earth-green/10 rounded-2xl p-8 border border-earth-green/20">
+                                            <h3 className="text-2xl font-black text-earth-dark mb-4 flex items-center gap-3">
+                                                <span className="text-4xl">🎯</span> Nivel recomendado
+                                            </h3>
+                                            <p className="text-lg text-gray-700">
+                                                Diseñada para ciclistas con nivel <strong>{route.difficulty.toLowerCase()}</strong>.
+                                                {route.difficulty === 'Fácil' && ' Perfecta para iniciarse en el gravel.'}
+                                                {route.difficulty === 'Media' && ' Requiere cierta experiencia previa.'}
+                                                {route.difficulty === 'Difícil' && ' Solo para ciclistas experimentados.'}
+                                            </p>
                                         </div>
                                     </div>
                                 )}
@@ -225,50 +291,142 @@ export default function RouteDetail() {
                                         <h2 className="text-4xl font-black text-earth-dark mb-8 flex items-center gap-4">
                                             <span className="text-5xl">✨</span> Puntos destacados
                                         </h2>
-                                        {[
-                                            { icon: "🏔️", title: "Vistas Panorámicas del Empordà", desc: "Paisajes espectaculares que combinan campos ondulantes, viñedos centenarios y vistas a la costa mediterránea." },
-                                            { icon: "🛤️", title: "Caminos Auténticos de Gravel", desc: "Rutas cuidadosamente seleccionadas que priorizan la seguridad sin sacrificar la aventura." },
-                                            { icon: "🏰", title: "Patrimonio Medieval y Cultural", desc: "Paradas estratégicas en pueblos históricos con arquitectura medieval preservada." },
-                                            { icon: "🍷", title: "Gastronomía y Enoturismo", desc: "Oportunidades para degustar productos locales y visitar bodegas familiares." }
-                                        ].map((item, i) => (
-                                            <div key={i} className="flex items-start gap-6 bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow border border-earth-beige/30">
-                                                <span className="text-6xl flex-shrink-0">{item.icon}</span>
-                                                <div>
-                                                    <h3 className="text-2xl font-black text-earth-dark mb-3">{item.title}</h3>
-                                                    <p className="text-gray-700 leading-relaxed">{item.desc}</p>
+                                        {route.highlights && route.highlights.length > 0 ? (
+                                            route.highlights.map((item, i) => (
+                                                <div
+                                                    key={i}
+                                                    className="flex items-start gap-6 bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow border border-earth-beige/30"
+                                                >
+                                                    <span className="text-6xl flex-shrink-0">{item.icon}</span>
+                                                    <div>
+                                                        <h3 className="text-2xl font-black text-earth-dark mb-3">{item.title}</h3>
+                                                        <p className="text-gray-700 leading-relaxed">{item.desc}</p>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        ))}
+                                            ))
+                                        ) : (
+                                            <p className="text-gray-500 italic">No hay puntos destacados configurados para esta ruta.</p>
+                                        )}
                                     </div>
                                 )}
 
-                                {/* Consejos */}
+                                {/* Tips */}
                                 {activeTab === 'tips' && (
                                     <div className="animate-fade-in space-y-10">
                                         <h2 className="text-4xl font-black text-earth-dark mb-8 flex items-center gap-4">
                                             <span className="text-5xl">💡</span> Consejos prácticos
                                         </h2>
-                                        {[
-                                            { icon: "✅", title: "Equipamiento Esencial", content: "Lleva suficiente agua (mínimo 2 litros), herramientas básicas, casco, gafas y protección solar.", bg: "bg-earth-green/10", border: "border-earth-green/30" },
-                                            { icon: "⚠️", title: "Planificación y Clima", content: "Consulta el pronóstico 24h antes. Mejores épocas: primavera y otoño. Evita horas centrales en verano.", bg: "bg-yellow-50", border: "border-yellow-400/40" },
-                                            { icon: "📱", title: "Navegación", content: "Descarga el track GPX antes. Lleva batería externa. Algunas zonas tienen cobertura limitada.", bg: "bg-blue-50", border: "border-blue-400/40" },
-                                            { icon: "🌱", title: "Sostenibilidad", content: "Respeta el entorno, no dejes residuos, cierra portones y sé respetuoso con otros usuarios.", bg: "bg-earth-green/10", border: "border-earth-green/30" }
-                                        ].map((tip, i) => (
-                                            <div key={i} className={`rounded-2xl p-8 ${tip.bg} shadow-lg border ${tip.border}`}>
-                                                <div className="flex items-start gap-5">
-                                                    <span className="text-5xl flex-shrink-0">{tip.icon}</span>
-                                                    <div>
-                                                        <h3 className="text-2xl font-black text-earth-dark mb-3">{tip.title}</h3>
-                                                        <p className="text-gray-800 leading-relaxed">{tip.content}</p>
+                                        {route.tips && route.tips.length > 0 ? (
+                                            route.tips.map((tip, i) => (
+                                                <div
+                                                    key={i}
+                                                    className={`rounded-2xl p-8 ${tip.bg || 'bg-earth-green/10'} shadow-lg border ${tip.border || 'border-earth-green/30'}`}
+                                                >
+                                                    <div className="flex items-start gap-5">
+                                                        <span className="text-5xl flex-shrink-0">{tip.icon}</span>
+                                                        <div>
+                                                            <h3 className="text-2xl font-black text-earth-dark mb-3">{tip.title}</h3>
+                                                            <p className="text-gray-800 leading-relaxed">{tip.content}</p>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        ))}
+                                            ))
+                                        ) : (
+                                            <p className="text-gray-500 italic">No hay consejos configurados para esta ruta.</p>
+                                        )}
+                                    </div>
+                                )}
+
+                                {/* Galería */}
+                                {activeTab === 'gallery' && (
+                                    <div className="animate-fade-in space-y-12">
+                                        <div>
+                                            <h2 className="text-4xl font-black text-earth-dark mb-8 flex items-center gap-4">
+                                                <span className="text-5xl">📸</span> Galería Visual
+                                            </h2>
+                                            <p className="text-lg text-gray-700 mb-10">
+                                                Explora la belleza de esta ruta a través de los ojos de nuestra comunidad y equipo.
+                                            </p>
+                                        </div>
+
+                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                            {route.gallery && route.gallery.length > 0 ? (
+                                                route.gallery.map((item, index) => (
+                                                    <div
+                                                        key={index}
+                                                        className="group relative aspect-video overflow-hidden rounded-3xl cursor-pointer shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 bg-earth-beige/20"
+                                                        onClick={() => {
+                                                            const mediaUrl = item.type === 'video' ? item.url : item.url;
+                                                            if (mediaUrl && !brokenImages.has(index)) {
+                                                                setSelectedMedia(mediaUrl);
+                                                            }
+                                                        }}
+                                                    >
+                                                        {(!item.url && item.type === 'image') ||
+                                                            (item.type === 'video' && !item.thumbnail && !item.url) ||
+                                                            brokenImages.has(index) ? (
+                                                            <div className="w-full h-full flex flex-col items-center justify-center bg-earth-beige/30 text-earth-dark/40">
+                                                                <svg className="w-16 h-16 mb-2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path
+                                                                        strokeLinecap="round"
+                                                                        strokeLinejoin="round"
+                                                                        strokeWidth={1}
+                                                                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                                                    />
+                                                                </svg>
+                                                                <span className="text-xs font-bold uppercase tracking-widest">Sin imagen</span>
+                                                            </div>
+                                                        ) : (
+                                                            <img
+                                                                src={item.type === 'image' ? item.url : item.thumbnail || "/placeholder.jpg"}
+                                                                alt={route.name}
+                                                                className="w-full h-full object-cover"
+                                                                onError={() => setBrokenImages(prev => new Set([...prev, index]))}
+                                                            />
+                                                        )}
+
+                                                        <div className="absolute inset-0 bg-earth-dark/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                                                            {!brokenImages.has(index) &&
+                                                                (item.type === 'video' ? (
+                                                                    <div className="w-16 h-16 bg-white/90 rounded-full flex items-center justify-center shadow-2xl">
+                                                                        <svg className="w-8 h-8 text-earth-brown ml-1" fill="currentColor" viewBox="0 0 20 20">
+                                                                            <path d="M4.5 3.5a.5.5 0 00-.5.5v12a.5.5 0 00.724.447l11-6a.5.5 0 000-.894l-11-6a.5.5 0 00-.224-.053z" />
+                                                                        </svg>
+                                                                    </div>
+                                                                ) : (
+                                                                    <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                        <path
+                                                                            strokeLinecap="round"
+                                                                            strokeLinejoin="round"
+                                                                            strokeWidth={2}
+                                                                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"
+                                                                        />
+                                                                    </svg>
+                                                                ))}
+                                                        </div>
+
+                                                        {item.type === 'video' && (
+                                                            <span className="absolute bottom-4 right-4 bg-earth-brown text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg uppercase tracking-wider">
+                                                                Video
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                ))
+                                            ) : (
+                                                <p className="text-gray-500 italic col-span-full text-center">No hay galería disponible para esta ruta.</p>
+                                            )}
+                                        </div>
+
+                                        <div className="bg-earth-beige/20 rounded-3xl p-10 border border-earth-beige/30 text-center">
+                                            <p className="text-earth-dark font-medium italic">
+                                                "Cada pedalada en esta ruta es una postal inolvidable. El gravel en su estado más puro."
+                                            </p>
+                                        </div>
                                     </div>
                                 )}
                             </div>
 
-                            {/* Sidebar (1/3) - Bordes más suaves */}
+                            {/* Sidebar (1/3) */}
                             <div className="space-y-10">
                                 {/* Pack de descarga */}
                                 <div className="bg-gradient-to-br from-earth-brown to-earth-green rounded-3xl p-10 text-[rgb(139,111,71)] shadow-2xl border border-earth-brown/20">
@@ -278,12 +436,16 @@ export default function RouteDetail() {
                                         <p className="opacity-90">Todo lo necesario para tu ruta</p>
                                     </div>
                                     <ul className="space-y-4 mb-10">
-                                        {["Track GPX verificado", "Guía PDF con altimetría", "Puntos de interés", "Recomendaciones gastronómicas", "Sugerencias de alojamiento"].map((item, i) => (
-                                            <li key={i} className="flex items-center gap-4">
-                                                <span className="text-2xl">✓</span>
-                                                <span>{item}</span>
-                                            </li>
-                                        ))}
+                                        {Array.isArray(route.download_pack_features) && route.download_pack_features.length > 0 ? (
+                                            route.download_pack_features.map((item, i) => (
+                                                <li key={i} className="flex items-center gap-4">
+                                                    <span className="text-2xl">✓</span>
+                                                    <span>{item}</span>
+                                                </li>
+                                            ))
+                                        ) : (
+                                            <li className="text-center text-gray-600 italic">No hay elementos en el pack configurado aún.</li>
+                                        )}
                                     </ul>
                                     <button className="w-full bg-brown text-earth-brown font-black py-5 rounded-2xl shadow-lg hover:shadow-2xl transition-all text-lg">
                                         Descargar Todo
@@ -294,25 +456,29 @@ export default function RouteDetail() {
                                 </div>
 
                                 {/* Info rápida */}
-                                <div className="bg-earth-beige/30 rounded-3xl p-8 border border-earth-beige/40">
-                                    <h4 className="text-2xl font-black text-earth-dark mb-6 flex items-center gap-3">
-                                        <span className="text-3xl">ℹ️</span> Información rápida
+                                <div className="bg-earth-beige/30 rounded-3xl p-6 border border-earth-beige/40">
+                                    <h4 className="text-lg font-black text-earth-dark mb-4 flex items-center gap-2">
+                                        <span className="text-2xl">ℹ️</span> Información rápida
                                     </h4>
-                                    <div className="space-y-5">
-                                        {[
-                                            { icon: "🚵", label: "Tipo", value: "Gravel / MTB" },
-                                            { icon: "📍", label: "Región", value: "Empordà, Catalunya" },
-                                            { icon: "🛤️", label: "Superficie", value: "70% tierra / 30% asfalto" },
-                                            { icon: "🌤️", label: "Época ideal", value: "Primavera - Otoño" }
-                                        ].map((item, i) => (
-                                            <div key={i} className="flex items-center justify-between bg-white rounded-xl p-4 shadow-sm border border-earth-beige/30">
-                                                <span className="flex items-center gap-3 font-semibold text-gray-700">
-                                                    <span className="text-2xl">{item.icon}</span>
-                                                    {item.label}
-                                                </span>
-                                                <span className="font-black text-earth-dark">{item.value}</span>
-                                            </div>
-                                        ))}
+                                    <div className="space-y-3">
+                                        {Array.isArray(route.quick_info) && route.quick_info.length > 0 ? (
+                                            route.quick_info.map((item, i) => (
+                                                <div
+                                                    key={i}
+                                                    className="flex items-center justify-between bg-white rounded-xl p-3 shadow-sm border border-earth-beige/30"
+                                                >
+                                                    <span className="flex items-center gap-2 font-medium text-gray-700 text-sm">
+                                                        <span className="text-lg">{item.icon}</span>
+                                                        {item.label}
+                                                    </span>
+                                                    <span className="font-bold text-earth-dark text-sm">{item.value}</span>
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <p className="text-gray-500 italic text-center text-sm">
+                                                No hay información rápida configurada para esta ruta.
+                                            </p>
+                                        )}
                                     </div>
                                 </div>
                             </div>
@@ -330,7 +496,6 @@ export default function RouteDetail() {
                         </svg>
                         Documentación Técnica
                     </h3>
-
                     <div className="grid md:grid-cols-2 gap-8">
                         {/* Guía PDF */}
                         <div className="flex items-center justify-between p-6 bg-earth-beige/20 rounded-2xl border border-earth-brown/10 hover:border-earth-brown/30 transition-all cursor-pointer group">
@@ -365,11 +530,42 @@ export default function RouteDetail() {
                         </div>
                     </div>
                 </div>
-
                 <div className="mt-16 text-center text-gray-600 italic">
                     * Recuerda que nuestras rutas son cuidadosamente diseñadas para ofrecer la mejor experiencia Gravel en el Empordà.
                 </div>
             </div>
+
+            {/* Lightbox / Media Modal */}
+            {selectedMedia && (
+                <div
+                    className="fixed inset-0 z-[100] bg-earth-dark/95 backdrop-blur-md flex items-center justify-center p-4 md:p-10 animate-fade-in"
+                    onClick={() => setSelectedMedia(null)}
+                >
+                    <button
+                        className="absolute top-10 right-10 text-white hover:text-earth-beige transition-colors p-2"
+                        onClick={() => setSelectedMedia(null)}
+                    >
+                        <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                    <div
+                        className="max-w-6xl w-full max-h-[85vh] flex items-center justify-center relative shadow-2xl rounded-2xl overflow-hidden"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        {selectedMedia.includes('youtube') ? (
+                            <iframe
+                                src={`${selectedMedia}?autoplay=1`}
+                                className="w-full aspect-video rounded-2xl"
+                                allow="autoplay; encrypted-media"
+                                allowFullScreen
+                            ></iframe>
+                        ) : (
+                            <img src={selectedMedia} alt="Expanded view" className="max-w-full max-h-full object-contain rounded-2xl" />
+                        )}
+                    </div>
+                </div>
+            )}
 
             <style>{`
         @keyframes fade-in {

@@ -11,7 +11,7 @@ export default function Configurator() {
             >
                 <div className="absolute inset-0 bg-earth-dark/70" />
                 <div className="relative z-10 text-white px-6 max-w-5xl">
-                    <h1 className="text-5xl md:text-7xl font-bold mb-8 drop-shadow-2xl">
+                    <h1 className="text-5xl md:text-7xl font-bold mb-8 drop-shadow-2xl bg-white/10 backdrop-blur-md inline-block px-4 py-2 rounded text-white border border-white/10">
                         Configurador de Paquetes
                     </h1>
                     <p className="text-2xl md:text-4xl font-light drop-shadow-lg">

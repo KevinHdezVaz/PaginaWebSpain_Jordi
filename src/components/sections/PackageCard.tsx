@@ -5,23 +5,30 @@ type Package = {
     name: string;
     days: number;
     nights: number;
-    price: string;
+    base_price: number | string; // Acepta string por si llega así desde la API
+    extra_day_price?: number | string;
     image: string | null;
     description: string | null;
     highlights: string[];
+    brief_description: string | null;
     pdf?: string | null;
-    isPopular?: boolean;
+    bike_basic_pdf?: string | null;
+    bike_premium_pdf?: string | null;
+    helmet_pdf?: string | null;
+    isPopular?: boolean | number | string;
+    is_popular?: boolean | number | string;
 };
 
 export default function PackageCard({ pkg, onSelect }: { pkg: Package; onSelect?: (pkg: Package) => void }) {
-    // Imagen: ya viene completa desde la API
+    console.log("PackageCard Data for", pkg.name, pkg);
+    // Imagen
     const hasImage = !!pkg.image?.trim();
     const imageSrc = hasImage ? pkg.image! : "";
 
-    // PDF: mismo caso
+    // PDF principal
     const pdfSrc = pkg.pdf ? pkg.pdf : null;
 
-    // Highlights: limpiamos y separamos por líneas
+    // Limpieza de highlights (escapes unicode y saltos de línea)
     const allHighlights = pkg.highlights
         .flatMap((item) =>
             item
@@ -44,15 +51,22 @@ export default function PackageCard({ pkg, onSelect }: { pkg: Package; onSelect?
 
     return (
         <div className="group relative bg-earth-beige/30 rounded-3xl shadow-xl overflow-hidden hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 flex flex-col h-full border-2 border-earth-beige/50 cursor-pointer">
-            {/* Popular Badge */}
-            {pkg.isPopular && (
-                <div className="absolute top-6 left-6 z-20 bg-gradient-to-r from-earth-green to-green-600 text-white px-5 py-2 rounded-full text-sm font-bold shadow-lg flex items-center gap-2">
-                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                    </svg>
-                    Más Popular
-                </div>
-            )}
+            {/* Popular Badge - Diagonal Ribbon */}
+            {(pkg.isPopular === true || pkg.isPopular === 1 || pkg.isPopular === "1" ||
+                pkg.is_popular === true || pkg.is_popular === 1 || pkg.is_popular === "1") && (
+                    <div className="absolute top-0 right-0 z-20 overflow-hidden w-32 h-32 pointer-events-none">
+                        <div className="absolute top-7 -right-8 w-40 bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-400 text-earth-dark transform rotate-45 shadow-2xl">
+                            <div className="flex items-center justify-center gap-1.5 py-2 px-2">
+                                <svg className="w-4 h-4 animate-pulse" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                </svg>
+                                <span className="text-xs font-black uppercase tracking-wider">Popular</span>
+                            </div>
+                            {/* Shadow effect */}
+                            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/10"></div>
+                        </div>
+                    </div>
+                )}
 
             {/* Imagen o placeholder */}
             <div className="h-72 overflow-hidden relative">
@@ -73,26 +87,10 @@ export default function PackageCard({ pkg, onSelect }: { pkg: Package; onSelect?
                     className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-earth-beige/40 to-earth-beige/70 text-earth-dark/70"
                     style={{ display: hasImage ? "none" : "flex" }}
                 >
-                    <svg
-                        className="w-24 h-24 mb-4 opacity-80"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
-                    >
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={1.5}
-                            d="M3 15l4-4 4 4 8-8M3 21h18"
-                        />
+                    <svg className="w-24 h-24 mb-4 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 15l4-4 4 4 8-8M3 21h18" />
                         <circle cx="16" cy="8" r="2" />
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={1.5}
-                            d="M12 4v16"
-                        />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v16" />
                     </svg>
                     <span className="text-lg font-medium tracking-wide">Sin fotografía</span>
                     <span className="text-sm mt-1 opacity-80">{pkg.name}</span>
@@ -104,9 +102,14 @@ export default function PackageCard({ pkg, onSelect }: { pkg: Package; onSelect?
                 <div className="absolute bottom-6 right-6 bg-earth-beige/95 backdrop-blur-sm text-earth-dark px-6 py-4 rounded-2xl shadow-2xl border border-earth-brown/20">
                     <div className="text-sm text-gray-600 font-medium">Desde</div>
                     <div className="text-3xl font-bold text-earth-brown">
-                        {pkg.price.includes("€") ? pkg.price : `${pkg.price} €`}
+                        {(Number(pkg.base_price) || 0).toFixed(2)} €
                     </div>
                     <div className="text-xs text-gray-500">por persona</div>
+                    {pkg.extra_day_price && (
+                        <div className="text-xs text-earth-green mt-1">
+                            +{(Number(pkg.extra_day_price) || 0).toFixed(2)} € / día extra
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -143,14 +146,15 @@ export default function PackageCard({ pkg, onSelect }: { pkg: Package; onSelect?
                     </div>
                 </div>
 
+                {/* Descripción corta */}
                 <p className="text-gray-700 mb-6 flex-1 leading-relaxed">
-                    {pkg.description || "Experiencia gravel todo incluido en el corazón del Empordà."}
+                    {pkg.brief_description || "Experiencia gravel todo incluido en el corazón del Empordà."}
                 </p>
 
                 {/* Highlights */}
                 <div className="mb-8">
-                    <p className="font-bold text-earth-dark mb-4 flex items-center gap-2">
-                        <svg className="w-5 h-5 text-earth-green" fill="currentColor" viewBox="0 0 20 20">
+                    <p className="font-bold text-earth-dark mb-4 flex items-center gap-2 text-lg">
+                        <svg className="w-6 h-6 text-earth-green" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                         </svg>
                         Incluye:
@@ -162,7 +166,7 @@ export default function PackageCard({ pkg, onSelect }: { pkg: Package; onSelect?
                                     <svg className="w-5 h-5 text-earth-green mr-3 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                                     </svg>
-                                    <span className="text-sm">{item}</span>
+                                    <span className="text-sm leading-relaxed">{item}</span>
                                 </li>
                             ))
                         ) : (
@@ -171,7 +175,7 @@ export default function PackageCard({ pkg, onSelect }: { pkg: Package; onSelect?
                     </ul>
                 </div>
 
-                {/* Botón único: Ver detalles y cotizar */}
+                {/* Botón */}
                 <button
                     onClick={handleButtonClick}
                     className="w-full text-center bg-gradient-to-r from-earth-brown to-earth-green hover:from-earth-dark hover:to-earth-brown text-white font-black text-lg py-5 rounded-2xl transition-all shadow-2xl hover:shadow-3xl transform hover:scale-105 duration-300 flex items-center justify-center gap-3 mt-auto"

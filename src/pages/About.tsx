@@ -1,4 +1,12 @@
+import { useNavigate } from 'react-router-dom';
+
 export default function About() {
+    const navigate = useNavigate();
+
+    const handleButtonClick = () => {
+        navigate('/contact');
+    };
+
     return (
         <div className="min-h-screen bg-earth-light">
             {/* Hero con imagen de fondo - equipo o paisaje emotivo */}
@@ -21,75 +29,69 @@ export default function About() {
             </section>
 
             {/* Introducción - Quiénes somos */}
-            <section className="py-20">
-                <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
-                    <div>
-                        <h2 className="text-4xl md:text-5xl font-bold text-earth-dark mb-8">
-                            Nuestra historia
+            <section className="py-24">
+                <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-16 items-center">
+                    <div className="order-2 lg:order-1">
+                        <div className="inline-block px-4 py-1 rounded-full bg-earth-brown/10 text-earth-brown font-bold text-sm uppercase tracking-widest mb-6">
+                            Nuestra Esencia
+                        </div>
+                        <h2 className="text-4xl md:text-6xl font-black text-earth-dark mb-8 leading-tight">
+                            Este apartado formará parte de nuestro <span className="text-earth-brown underline decoration-earth-beige decoration-8 underline-offset-4">pasado</span> y de nuestro <span className="text-earth-brown underline decoration-earth-beige decoration-8 underline-offset-4">futuro</span>.
                         </h2>
-                        <p className="text-lg text-gray-700 leading-relaxed mb-6">
-                            Gravel Empordà 360º nace de la pasión por el ciclismo gravel y el amor profundo por esta tierra mágica: el Empordà.
+                        <p className="text-xl text-gray-700 leading-relaxed mb-8 font-medium italic border-l-4 border-earth-brown pl-6">
+                            Gravel Empordà 360º no es solo una empresa de rutas; es la culminación de un sueño nacido de la necesidad de compartir el porqué hemos creado este proyecto.
                         </p>
                         <p className="text-lg text-gray-700 leading-relaxed mb-6">
-                            Somos un equipo de ciclistas locales, guías apasionados y amantes de la buena mesa que decidimos compartir lo mejor de nuestra región: rutas secretas por caminos rurales, pueblos medievales con encanto, gastronomía auténtica y alojamientos seleccionados con cariño.
-                        </p>
-                        <p className="text-lg text-gray-700 leading-relaxed">
-                            Creemos que las mejores vacaciones son aquellas que combinan deporte, descubrimiento cultural y placer gastronómico, siempre en grupos reducidos y con atención personalizada.
+                            Nuestra intención va más allá de mostrar paisajes; queremos dar a conocer la historia, el esfuerzo y la pasión que late en cada camino del Empordà. Cada ruta es un capítulo de un relato que nos conecta con nuestras raíces y nos proyecta hacia nuevas metas.
                         </p>
                     </div>
 
-                    <div className="rounded-2xl overflow-hidden shadow-2xl">
-                        <img
-                            src="https://images.unsplash.com/photo-1530549388143-43cec8e9f64f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1374&q=80"
-                            alt="Equipo Gravel Empordà"
-                            className="w-full h-full object-cover"
-                        />
+                    <div className="order-1 lg:order-2 relative group">
+                        <div className="absolute -inset-4 bg-earth-beige/20 rounded-[3rem] blur-2xl group-hover:bg-earth-beige/40 transition-all duration-700" />
+                        <div className="relative rounded-[2.5rem] overflow-hidden shadow-2xl transform group-hover:scale-[1.02] transition-all duration-700 border-8 border-white">
+                            <img
+                                src="https://images.unsplash.com/photo-1541625602330-2277a1cd43a7?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200"
+                                alt="El origen de Gravel Empordà"
+                                className="w-full aspect-[4/5] object-cover"
+                            />
+                        </div>
                     </div>
                 </div>
             </section>
 
-            {/* Filosofía / Valores */}
-            <section className="py-20 bg-earth-beige/30">
-                <div className="max-w-7xl mx-auto px-6 text-center">
-                    <h2 className="text-4xl md:text-5xl font-bold text-earth-dark mb-12">
-                        Nuestra filosofía
-                    </h2>
-
-                    <div className="grid md:grid-cols-3 gap-12">
-                        <div className="bg-white p-10 rounded-2xl shadow-xl">
-                            <div className="w-20 h-20 bg-earth-brown rounded-full mx-auto mb-6 flex items-center justify-center">
-                                <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                                </svg>
-                            </div>
-                            <h3 className="text-2xl font-bold text-earth-dark mb-4">Autenticidad</h3>
-                            <p className="text-gray-700">
-                                Rutas diseñadas por locales, lejos de las multitudes. Solo los mejores caminos y experiencias genuinas.
+            {/* Sección del Catálogo PDF */}
+            <section className="py-24 bg-white relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-1/3 h-full bg-earth-beige/5 skew-x-12 transform translate-x-1/2" />
+                <div className="max-w-7xl mx-auto px-6 relative z-10">
+                    <div className="bg-earth-dark rounded-[3rem] p-8 md:p-16 flex flex-col md:flex-row items-center gap-12 overflow-hidden shadow-2xl">
+                        <div className="flex-1 text-center md:text-left">
+                            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+                                Catálogo de Experiencias <span className="text-earth-beige italic">Premium</span>
+                            </h2>
+                            <p className="text-earth-light/80 text-xl mb-10 max-w-xl">
+                                Descubre nuestra selección exclusiva de rutas, gastronomía y cultura en formato digital. Todo lo que necesitas para tu próxima aventura.
                             </p>
+                            <button
+                                onClick={handleButtonClick}
+                                className="w-full lg:w-auto text-center bg-gradient-to-r from-earth-brown to-earth-green hover:from-earth-dark hover:to-earth-brown text-white font-black text-lg py-5 px-10 rounded-2xl transition-all shadow-2xl hover:shadow-3xl transform hover:scale-105 duration-300 flex items-center justify-center gap-3 mt-auto"
+                            >
+                                <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                                </svg>
+                                Ver PDF
+                            </button>
                         </div>
-
-                        <div className="bg-white p-10 rounded-2xl shadow-xl">
-                            <div className="w-20 h-20 bg-earth-green rounded-full mx-auto mb-6 flex items-center justify-center">
-                                <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                                </svg>
+                        <div className="hidden md:block w-72 h-96 relative perspective-1000">
+                            <div className="w-full h-full bg-white rounded-lg shadow-2xl transform rotate-y-12 border-4 border-earth-beige/20 overflow-hidden">
+                                <img
+                                    src="https://images.unsplash.com/photo-1544006659-f0b21f04cb1d?ixlib=rb-4.0.3&auto=format&fit=crop&w=600"
+                                    alt="Catálogo Preview"
+                                    className="w-full h-full object-cover opacity-80"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-earth-dark/80 to-transparent flex items-end p-6">
+                                    <span className="text-white font-black leading-none text-4xl">EXPERIENCIAS PREMIUN</span>
+                                </div>
                             </div>
-                            <h3 className="text-2xl font-bold text-earth-dark mb-4">Pasión</h3>
-                            <p className="text-gray-700">
-                                Pedaleamos porque amamos hacerlo. Esa energía se transmite en cada ruta y cada detalle.
-                            </p>
-                        </div>
-
-                        <div className="bg-white p-10 rounded-2xl shadow-xl">
-                            <div className="w-20 h-20 bg-earth-brown rounded-full mx-auto mb-6 flex items-center justify-center">
-                                <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                                </svg>
-                            </div>
-                            <h3 className="text-2xl font-bold text-earth-dark mb-4">Atención personal</h3>
-                            <p className="text-gray-700">
-                                Grupos reducidos (máx. 10 personas), guías dedicados y todo organizado para que solo disfrutes.
-                            </p>
                         </div>
                     </div>
                 </div>
