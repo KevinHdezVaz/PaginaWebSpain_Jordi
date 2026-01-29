@@ -142,11 +142,11 @@ export default function SubmitStory({ onSuccess }: SubmitStoryProps) {
                             name="content"
                             value={formData.content}
                             onChange={handleChange}
+                            minLength={50}  // ← Agrega esto para que el navegador avise
                             rows={8}
                             required
                             className="w-full px-4 py-2.5 rounded-lg border border-earth-brown/40 focus:outline-none focus:border-[rgb(139,111,71)]"
-                            placeholder="Describe tu ruta, sensaciones, recomendaciones, fotos que quieras compartir..."
-                        />
+                            placeholder="Describe tu ruta, sensaciones, recomendaciones... (mínimo 50 caracteres)" />
                     </div>
 
                     <div className="grid md:grid-cols-2 gap-5">
